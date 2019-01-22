@@ -96,24 +96,32 @@ cat resources/eks-kube-config.yaml | sed -e "s@endpoint-url@$K8S_API_LB_NAME@g" 
                                    | sed -e "s@base64-encoded-ca-cert@$CA_AUTHORITY_DATA@g" \
                                    | sed -e "s@cluster-name@$NAME@g" \
                                    | sed -e "s@role-arn@$DEV_ROLE_ARN@g" \
+                                   | sed -e "s@common-name@dev@g" \
+                                   | sed -e "s@kubernetes@dev@g" \
                                    | tee keys/dev/dev-eks-kube-config.yaml
 #create test user kube config
 cat resources/eks-kube-config.yaml | sed -e "s@endpoint-url@$K8S_API_LB_NAME@g" \
                                    | sed -e "s@base64-encoded-ca-cert@$CA_AUTHORITY_DATA@g" \
                                    | sed -e "s@cluster-name@$NAME@g" \
                                    | sed -e "s@role-arn@$TEST_ROLE_ARN@g" \
+                                   | sed -e "s@common-name@test@g" \
+                                   | sed -e "s@kubernetes@test@g" \
                                    | tee keys/test/test-eks-kube-config.yaml
 #create ops user kube config
 cat resources/eks-kube-config.yaml | sed -e "s@endpoint-url@$K8S_API_LB_NAME@g" \
                                    | sed -e "s@base64-encoded-ca-cert@$CA_AUTHORITY_DATA@g" \
                                    | sed -e "s@cluster-name@$NAME@g" \
                                    | sed -e "s@role-arn@$OPS_ROLE_ARN@g" \
+                                   | sed -e "s@common-name@ops@g" \
+                                   | sed -e "s@kubernetes@ops@g" \
                                    | tee keys/ops/ops-eks-kube-config.yaml
 #create admin user kube config
 cat resources/eks-kube-config.yaml | sed -e "s@endpoint-url@$K8S_API_LB_NAME@g" \
                                    | sed -e "s@base64-encoded-ca-cert@$CA_AUTHORITY_DATA@g" \
                                    | sed -e "s@cluster-name@$NAME@g" \
                                    | sed -e "s@role-arn@$ADMIN_ROLE_ARN@g" \
+                                   | sed -e "s@common-name@admin-user@g" \
+                                   | sed -e "s@kubernetes@admin-user@g" \
                                    | tee keys/admin/admin-eks-kube-config.yaml
 #############rbac enable##########
 
@@ -172,3 +180,197 @@ kubectl  auth can-i \
         "*" "*" --as admin-user --all-namespaces
 set +x
 ##########################
+
+
+##--------------------
+echo "
+export KUBECONFIG=\$PWD/dev-eks-kube-config.yaml
+
+export AWS_ACCESS_KEY_ID=$(\
+  cat keys/dev/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')
+
+export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/dev/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')
+
+echo \"\"
+echo \"to set KUBECONFIG and start using k8s execute below in your terminal\"
+echo \"------------------------------\"
+echo \"export KUBECONFIG=\$PWD/dev-eks-kube-config.yaml\"
+echo \"export AWS_ACCESS_KEY_ID=$(\
+  cat keys/dev/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')\"
+echo \"export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/dev/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')\"
+# echo \"\"
+# echo \"To login to grafana use below token : it has an expiry so you will need to regenerate if its expired \"
+# echo \"\"
+# kubectl -n metrics \
+#     get secret grafana \
+#     -o jsonpath=\"{.data.admin-password}\" \
+#     | base64 --decode; echo
+echo \"-------------------------------\"
+echo \"To login to kube dashboard use below token : it has an expiry so you will need to regenerate if its expired \"
+echo \"\"
+kubectl -n dev describe secret \$(kubectl -n dev get secret | grep dev-sa  | awk '{print \$1}') | grep token:
+echo \"\"
+echo \"You can re-generate a token by running below command afer initial context setting \"
+echo \"\"
+echo \"-------------------------------------------------------\"
+echo \"kubectl -n dev describe secret \$(kubectl -n dev get secret | grep dev-sa  | awk '{print \$1}') | grep token: \"
+echo \"-------------------------------------------------------\""> keys/dev/set-up-dev.sh
+
+##---------------
+echo "
+export KUBECONFIG=\$PWD/test-eks-kube-config.yaml
+
+export AWS_ACCESS_KEY_ID=$(\
+  cat keys/test/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')
+
+export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/test/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')
+
+echo \"\"
+echo \"to set KUBECONFIG and start using k8s execute below in your terminal\"
+echo \"------------------------------\"
+echo \"export KUBECONFIG=\$PWD/test-eks-kube-config.yaml\"
+echo \"export AWS_ACCESS_KEY_ID=$(\
+  cat keys/test/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')\"
+echo \"export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/test/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')\"
+echo \"-------------------------------\"
+# echo \"\"
+# echo \"To login to grafana use below token : it has an expiry so you will need to regenerate if its expired \"
+# echo \"\"
+# kubectl -n metrics \
+#     get secret grafana \
+#     -o jsonpath=\"{.data.admin-password}\" \
+#     | base64 --decode; echo
+echo \"\"
+echo \"To login to kube dashboard use below token : it has an expiry so you will need to regenerate if its expired \"
+echo \"\"
+kubectl -n test describe secret \$(kubectl -n test get secret | grep test-sa | awk '{print \$1}') | grep token:
+echo \"\"
+echo \"You can re-generate a token by running below command afer initial context setting \"
+echo \"\"
+echo \"-------------------------------------------------------\"
+echo \"kubectl -n test describe secret \$(kubectl -n test get secret | grep test-sa  | awk '{print \$1}') | grep token: \"
+echo \"-------------------------------------------------------\"" > keys/test/set-up-test.sh
+
+##----------
+echo "
+export KUBECONFIG=\$PWD/ops-eks-kube-config.yaml
+
+export AWS_ACCESS_KEY_ID=$(\
+  cat keys/ops/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')
+
+export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/ops/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')
+
+echo \"\"
+echo \"to set KUBECONFIG and start using k8s execute below in your terminal\"
+echo \"------------------------------\"
+echo \"export KUBECONFIG=\$PWD/ops-eks-kube-config.yaml\"
+echo \"export AWS_ACCESS_KEY_ID=$(\
+  cat keys/ops/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')\"
+echo \"export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/ops/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')\"
+echo \"-------------------------------\"
+
+echo \"\"
+echo \"your monitoring and alerting portal uid/password :\" sysops:$BASIC_AUTH_PWD
+echo \"\"
+
+# echo \"To login to grafana use below token with admin as userid : it has an expiry so you will need to regenerate if its expired \"
+# echo \"\"
+# kubectl -n metrics \
+#     get secret grafana \
+#     -o jsonpath=\"{.data.admin-password}\" \
+#     | base64 --decode; echo
+
+echo \"\"
+echo \"To login to kube dashboard use below token : it has an expiry so you will need to regenerate if its expired \"
+echo \"\"
+kubectl -n ops describe secret \$(kubectl -n ops get secret | grep ops-sa | awk '{print \$1}') | grep token:
+echo \"\"
+echo \"You can re-generate a token by running below command afer initial context setting \"
+echo \"\"
+echo \"-------------------------------------------------------\"
+echo \"kubectl -n ops describe secret \$(kubectl -n ops get secret | grep ops-sa | awk '{print \$1}') | grep token: \"
+echo \"-------------------------------------------------------\""> keys/ops/set-up-ops.sh
+
+##----------
+echo "
+export KUBECONFIG=\$PWD/admin-eks-kube-config.yaml
+
+export AWS_ACCESS_KEY_ID=$(\
+  cat keys/admin/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')
+
+export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/admin/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')
+
+echo \"\"
+echo \"to set KUBECONFIG and start using k8s execute below in your terminal\"
+echo \"------------------------------\"
+echo \"export KUBECONFIG=\$PWD/admin-eks-kube-config.yaml\"
+echo \"export AWS_ACCESS_KEY_ID=$(\
+  cat keys/admin/*-creds | jq -r \
+  '.AccessKey.AccessKeyId')\"
+echo \"export AWS_SECRET_ACCESS_KEY=$(\
+  cat keys/admin/*-creds | jq -r \
+  '.AccessKey.SecretAccessKey')\"
+echo \"-------------------------------\"
+
+echo \"your monitoring and alerting portal uid/password :\" sysops:$BASIC_AUTH_PWD
+echo \"\"
+
+echo \"To login to grafana use below token with admin uid : it has an expiry so you will need to regenerate if its expired \"
+echo \"\"
+kubectl -n metrics get secret grafana -o jsonpath=\"{.data.admin-password}\" | base64 --decode; echo
+echo \"\"
+echo \"\"
+echo \"To login to kube dashboard use below token : it has an expiry so you will need to regenerate if its expired \"
+echo \"\"
+kubectl -n kube-system describe secret \$(kubectl -n kube-system get secret | grep admin-user-sa | awk '{print \$1}') | grep token:
+echo \"\"
+echo \"You can re-generate a token by running below command afer initial context setting \"
+echo \"\"
+echo \"-------------------------------------------------------\"
+echo \"kubectl -n kube-system describe secret \$(kubectl -n kube-system get secret | grep admin-user-sa | awk '{print \$1}') | grep token: \"
+echo \"-------------------------------------------------------\""> keys/admin/set-up-admin.sh
+
+##----------------
+
+####copy read me #####
+
+cp README.md keys/test/README.md
+cp README.md keys/dev/README.md
+cp README.md keys/ops/README.md
+cp README.md keys/admin/README.md
+
+##########
+
+
+####zip folders ####
+
+zip -r keys/ops keys/ops
+zip -r keys/test keys/test
+zip -r keys/dev keys/dev
+zip -r keys/admin keys/admin
+
+####################
+
+
+

@@ -10,11 +10,12 @@ if [[ -z "${MY_ORG_DNS_NAME}" && -z "${MAX_NODE_COUNT}" && -z "${BASIC_AUTH_PWD}
     exit
 else
     ###custom iam policy for eks
-    export EKS_POLICY_ARN=$(aws iam create-policy --policy-name eks-policy --policy-document file://resources/eks-policy.json | jq -r '.Policy.Arn')
     export NAME=$NAME-$(date +%s)
     export DOMAIN_NAME=$MY_ORG_DNS_NAME
     export BASIC_AUTH_PWD
     export ACCNT_ID=$(aws sts get-caller-identity --output text --query Account)
+    export EKS_POLICY_ARN=$(aws iam create-policy --policy-name eks-policy --policy-document file://resources/eks-policy.json | jq -r '.Policy.Arn')
+    echo "The policy ARN " $EKS_POLICY_ARN
     echo "The selected k8s cluster name is :" $NAME
     export AWS_SSL_CERT_ARN=$(\
          aws acm request-certificate \

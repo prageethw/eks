@@ -14,9 +14,9 @@ aws iam delete-access-key --access-key $ACCESS_KEY_ID_EKS --user-name eks
 #######################
 
 #### detach policies ####
-aws iam detach-group-policy \
-    --policy-arn $EKS_POLICY_ARN \
-    --group-name eks
+# aws iam detach-group-policy \
+#     --policy-arn $EKS_POLICY_ARN \
+#     --group-name eks
 
 aws iam detach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess \
