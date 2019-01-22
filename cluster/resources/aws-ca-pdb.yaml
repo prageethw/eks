@@ -1,0 +1,10 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: aws-cluster-autoscaler
+  namespace: aws-cluster-autoscaler
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: aws-cluster-autoscaler

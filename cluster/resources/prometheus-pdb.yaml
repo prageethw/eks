@@ -1,0 +1,58 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kube-state-metrics
+  namespace: metrics 
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: prometheus
+      component: kube-state-metrics
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: alertmanager
+  namespace: metrics
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: prometheus
+      component: alertmanager
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: pushgateway
+  namespace: metrics
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: prometheus
+      component: pushgateway
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: server
+  namespace: metrics
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: prometheus
+      component: server
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: prometheus-adapter
+  namespace: metrics
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: prometheus-adapter

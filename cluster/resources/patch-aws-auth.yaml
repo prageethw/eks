@@ -1,0 +1,8 @@
+    - rolearn: dev-arn
+      username: dev
+    - rolearn: test-arn
+      username: test
+    - rolearn: ops-arn
+      username: ops
+    - rolearn: admin-arn
+      username: admin-user

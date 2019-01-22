@@ -1,0 +1,10 @@
+kops-creds
+*.pub
+*.pem
+config
+*.temp
+k8s*
+key*
+.DS_Store
+*k8s.local.yaml
+

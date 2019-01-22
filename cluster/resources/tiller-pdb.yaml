@@ -1,0 +1,43 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: tiller
+  namespace: kube-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: helm
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: tiller
+  namespace: test
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: helm
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: tiller
+  namespace: dev
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: helm
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: tiller
+  namespace: ops
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: helm
