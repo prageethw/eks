@@ -1,3 +1,5 @@
+kubecfg*
+*.temp*
 *-creds
 *.pub
 *.pem
