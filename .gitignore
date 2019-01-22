@@ -1,4 +1,4 @@
-kops-creds
+*-creds
 *.pub
 *.pem
 config
