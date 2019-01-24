@@ -8,6 +8,8 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 2. Install JQ.
 3. Create a AWS account.
 4. Helm.
+5. iam authenticator.
+6. eksctl.
 
 ## set-up terminal with AWS access details
 
@@ -23,11 +25,11 @@ export AWS_DEFAULT_REGION=[...]
 
 ```bash
 
-MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small MY_ORG_DNS_NAME=example.k8s.local USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small MY_ORG_DNS_NAME=example USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
 ```
 
 **Note:**
-above command will create a cluster named example.com.au.k8s.local with 3 master nodes and 3 worker nodes.
+Above command will create a cluster named example with 3 master nodes and 3 worker nodes in each AZ.
 
 ## 2.  delete cluster
 
@@ -37,9 +39,10 @@ sh delete-k8s-cluster.sh
 
 To cleanup all AWS resources and temporary files
 
-## 3. dry run
+## 3. distribute keys
 
-```bash
-MASTER_COUNT=3 NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small DRY_RUN=true MY_ORG_DNS_NAME=example.k8s.local USE_HELM=true sh -x build-k8s-cluster.sh
-sh delete-k8s-cluster.sh
-```
+Users of can be given a package (**.zip**) file that will be generated in /cluster/keys. as part of design there are 4 types of such packages generated ops,dev,test and admin.
+
+## 4. RBAC and access controls
+
+Once users get their package, they can read README.md and point them to K8s cluster. login details for Kube dashboard,monitoring and alerting tools will be displayed as part of context set.
