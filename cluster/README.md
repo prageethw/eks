@@ -1,4 +1,4 @@
-# aws-kops
+# aws-eks
 
 This repo contains files that will help you to point to a K8s cluster using Kops on the fly.
 
