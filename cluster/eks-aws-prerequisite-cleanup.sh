@@ -2,6 +2,7 @@
 
 #### clean ssh key and iam key ####
 set -x
+source ./k8s-eks-cluster.temp
 aws ec2 delete-key-pair --key-name eks-k8s
 
 ACCESS_KEY_ID_EKS=$(\

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+source ./k8s-eks-cluster.temp
 ##delete Roles
 aws iam delete-role --role-name eks-dev
 aws iam delete-role --role-name eks-test
@@ -93,5 +94,5 @@ rm -rf k8s*
 rm resources/*.temp.json
 rm resources/*.temp.yaml
 rm -rf keys
-rm kubecfg-eks
+
 ##############################

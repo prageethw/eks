@@ -6,7 +6,7 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 
 1. Install AWS CLI.
 2. Install JQ.
-3. Create a AWS account.
+3. Create a AWS account with admin rights.
 4. Helm.
 5. iam authenticator.
 6. eksctl.

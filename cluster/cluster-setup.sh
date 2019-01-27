@@ -2,7 +2,7 @@
 
 #### set kops env ####
 
-# source ./set-eks.env
+source ./set-eks.env
 
 if [[ -z "${MY_ORG_DNS_NAME}" && -z "${MAX_NODE_COUNT}" && -z "${BASIC_AUTH_PWD}" &&  -z "${NAME}" ]]; then
 
@@ -47,7 +47,7 @@ done
     eksctl create cluster \
     -n $NAME \
     -r $AWS_DEFAULT_REGION \
-    --kubeconfig kubecfg-eks \
+    --kubeconfig keys/kubecfg-eks \
     --node-type ${NODE_TYPE:-t2.small} \
     --nodes ${DESIRED_NODE_COUNT:-3} \
     --nodes-max ${NODE_COUNT:-5}  \
@@ -64,24 +64,24 @@ done
     --cluster $NAME \
     --name $NG1_NAME \
     --node-zones $ZONE1 \
-    --asg-access \
-    --external-dns-access \
     --node-type ${NODE_TYPE:-t2.small} \
     --nodes ${DESIRED_NODE_COUNT:-3} \
     --nodes-max ${NODE_COUNT:-5}  \
     --nodes-min ${MIN_NODE_COUNT:-3} \
+    --asg-access \
+    --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
 #----------ng2
     eksctl create nodegroup \
     --cluster $NAME \
     --name $NG2_NAME \
     --node-zones $ZONE2 \
-    --asg-access \
-    --external-dns-access \
     --node-type ${NODE_TYPE:-t2.small} \
     --nodes ${DESIRED_NODE_COUNT:-3} \
     --nodes-max ${NODE_COUNT:-5}  \
     --nodes-min ${MIN_NODE_COUNT:-3} \
+    --asg-access \
+    --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
 # --node-zones $ZONE2 \
 #----------ng3
@@ -89,20 +89,21 @@ done
     --cluster $NAME \
     --name $NG3_NAME \
     --node-zones $ZONE3 \
-    --asg-access \
-    --external-dns-access \
     --node-type ${NODE_TYPE:-t2.small} \
     --nodes ${DESIRED_NODE_COUNT:-3} \
     --nodes-max ${NODE_COUNT:-5}  \
     --nodes-min 0 \
+    --asg-access \
+    --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
 # --node-zones $ZONE3 \
+
 #patch dns to support CA
-    kubectl apply -f cluster/resources/core-dns-pdb.yaml
+    kubectl apply -f ./resources/core-dns-pdb.yaml
 
 ### set kubeconfig
 
-    export KUBECONFIG=./kubecfg-eks
+    export KUBECONFIG=keys/kubecfg-eks
 
 #### intall ingress ####
 
@@ -144,15 +145,15 @@ done
     echo "Waiting for ELB to become available..."
     echo ""
     
-    # aws elb wait  instance-in-service \
-    #                   --load-balancer-name $LB_NAME
+    aws elb wait  instance-in-service \
+                      --load-balancer-name $LB_NAME
 
-    # export ASG_NAME=$(aws autoscaling \
+    # export ASG_NAME="$(aws autoscaling \
     # describe-auto-scaling-groups \
-    # | jq -r ".AutoScalingGroups[] \
+    # | jq -r ".AutoScalingGroups[0] \
     # | select(.AutoScalingGroupName \
     # | startswith(\"eksctl-$NAME-nodegroup\")) \
-    # .AutoScalingGroupName")
+    # .AutoScalingGroupName")"
 
     export SG_NAME=$(aws ec2 describe-security-groups \
     --filters Name=group-name,Values=k8s-elb-$LB_NAME \
@@ -271,7 +272,6 @@ echo "export LB_NAME=$LB_NAME"
 echo "export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN"
 echo "export LB_HOST=$LB_HOST"
 echo "export DOMAIN_NAME=$DOMAIN_NAME"
-echo "export ASG_NAMES=$ASG_NAMES"
 echo "export SG_NAME=$SG_NAME"
 echo "export ACCNT_ID=$ACCNT_ID"
 echo "export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT"
@@ -302,7 +302,6 @@ export LB_HOST=$LB_HOST
 export LB_NAME=$LB_NAME
 export DOMAIN_NAME=$DOMAIN_NAME
 export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN
-export ASG_NAMES=$ASG_NAMES
 export SG_NAME=$SG_NAME
 export PROM_ADDR=$PROM_ADDR
 export ACCNT_ID=$ACCNT_ID
