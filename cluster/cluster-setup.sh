@@ -97,7 +97,7 @@ done
     --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
 # --node-zones $ZONE3 \
-
+# --node-labels "chaos-gorilla=true" \
 #patch dns to support CA
     kubectl apply -f ./resources/core-dns-pdb.yaml
 
@@ -193,9 +193,9 @@ done
   
 # ###########################################
 # enabeling multi nodegroup clusters
-# ASG_NAMES=""
-# for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | select(.AutoScalingGroupName | startswith(\"eksctl-$NAME-nodegroup\")).AutoScalingGroupName");
-# do
+ASG_NAMES=""
+for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | select(.AutoScalingGroupName | startswith(\"eksctl-$NAME-nodegroup\")).AutoScalingGroupName");
+do
 #    for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
 #    do
 #      aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true Key=kubernetes.io/cluster/$NAME,Value=true
@@ -204,9 +204,9 @@ done
 #     --tags \
 #     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
 #     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true
-#     ASG_NAMES=$ASG_NAME,$ASG_NAMES
-# done
-#     export ASG_NAMES=${ASG_NAMES%?}
+    ASG_NAMES=$ASG_NAME,$ASG_NAMES
+done
+    export ASG_NAMES=${ASG_NAMES%?}
 
 
 #### install helm if required ####
@@ -274,6 +274,7 @@ echo "export LB_HOST=$LB_HOST"
 echo "export DOMAIN_NAME=$DOMAIN_NAME"
 echo "export SG_NAME=$SG_NAME"
 echo "export ACCNT_ID=$ACCNT_ID"
+echo "export ASG_NAMES=$ASG_NAMES"
 echo "export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT"
 echo "export MIN_NODE_COUNT=$MIN_NODE_COUNT"
 echo "export PROM_ADDR=$PROM_ADDR"
@@ -311,6 +312,7 @@ export MIN_NODE_COUNT=$MIN_NODE_COUNT
 export GRAFANA_ADDR=$GRAFANA_ADDR
 export DASHBOARD_ADDR=$DASHBOARD_ADDR
 export EKS_POLICY_ARN=$EKS_POLICY_ARN
+export ASG_NAMES=$ASG_NAMES
 export NG1_NAME=$NG1_NAME
 export NG2_NAME=$NG2_NAME
 export NG3_NAME=$NG3_NAME
