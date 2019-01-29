@@ -255,7 +255,7 @@ done
 #################################
 
 ###########enable rbac and user creation #####    
-sh set-up-k8s-users.sh
+     sh set-up-k8s-users.sh
 #########################################
 
 

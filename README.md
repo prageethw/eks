@@ -25,8 +25,8 @@ export AWS_DEFAULT_REGION=[...]
 
 ```bash
 
-MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small \
-MY_ORG_DNS_NAME=example USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 NAME=prageethw MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t2.medium \ MY_ORG_DNS_NAME=prageethw.co USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
+
 ```
 
 **Note:**
@@ -42,8 +42,7 @@ To cleanup all AWS resources and temporary files
 
 ## 3. distribute keys
 
-Users of can be given a package (**.zip**) file that will be generated in /cluster/keys. as part of design there are 4 types of 
-such packages generated ops,dev,test and admin.
+Users of can be given a package (**.zip**) file that will be generated in /cluster/keys. as part of design there are 4 types of such packages generated ops,dev,test and admin.
 
 ## 4. RBAC and access controls
 
