@@ -155,9 +155,9 @@ done
     # | startswith(\"eksctl-$NAME-nodegroup\")) \
     # .AutoScalingGroupName")"
 
-    export SG_NAME=$(aws ec2 describe-security-groups \
-    --filters Name=group-name,Values=k8s-elb-$LB_NAME \
-    | jq -r ".SecurityGroups[0].GroupId")
+    # export SG_NAME=$(aws ec2 describe-security-groups \
+    # --filters Name=group-name,Values=k8s-elb-$LB_NAME \
+    # | jq -r ".SecurityGroups[0].GroupId")
 
     export VPC_NAME=$(aws ec2 \
     describe-vpcs \
@@ -272,7 +272,6 @@ echo "export LB_NAME=$LB_NAME"
 echo "export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN"
 echo "export LB_HOST=$LB_HOST"
 echo "export DOMAIN_NAME=$DOMAIN_NAME"
-echo "export SG_NAME=$SG_NAME"
 echo "export ACCNT_ID=$ACCNT_ID"
 echo "export ASG_NAMES=$ASG_NAMES"
 echo "export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT"
@@ -303,7 +302,6 @@ export LB_HOST=$LB_HOST
 export LB_NAME=$LB_NAME
 export DOMAIN_NAME=$DOMAIN_NAME
 export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN
-export SG_NAME=$SG_NAME
 export PROM_ADDR=$PROM_ADDR
 export ACCNT_ID=$ACCNT_ID
 export AM_ADDR=$AM_ADDR

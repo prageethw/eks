@@ -1,0 +1,20 @@
+{
+  "interval": "5",
+  "probability": 100,
+  "enableForASGs": [ "eksctl-prageethw-1548650234-nodegroup-ng3-NodeGroup-GFWEQRU2M7NW","eksctl-prageethw-1548650234-nodegroup-ng2-NodeGroup-1SSRABOUIJFWG","eksctl-prageethw-1548650234-nodegroup-ng1-NodeGroup-1OMGSDBRKOIDD"
+  ],
+  "disableForASGs": [
+  ],
+  "enableForTags": [
+  	{
+  		"key": "chaos_monkey",
+  		"value": "true"
+	}
+  ],
+  "slackWebhook": [
+  	{
+  		"channel": "#alerts",
+  		"webhookId": "https://hooks.slack.com/services/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"
+  	}
+  ]
+}

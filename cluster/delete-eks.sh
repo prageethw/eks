@@ -75,8 +75,8 @@ eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME
 
 eksctl delete cluster -n $NAME #--wait
 
-aws ec2 delete-security-group \
-    --group-id $SG_NAME
+# aws ec2 delete-security-group \
+#     --group-id $SG_NAME
 
 # aws  ec2 delete-vpc --vpc-id $VPC_NAME
 
