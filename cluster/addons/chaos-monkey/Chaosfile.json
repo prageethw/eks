@@ -1,8 +1,7 @@
 {
   "interval": "5",
   "probability": 100,
-  "enableForASGs": [ "eksctl-prageethw-1548650234-nodegroup-ng3-NodeGroup-GFWEQRU2M7NW","eksctl-prageethw-1548650234-nodegroup-ng2-NodeGroup-1SSRABOUIJFWG","eksctl-prageethw-1548650234-nodegroup-ng1-NodeGroup-1OMGSDBRKOIDD"
-  ],
+  "enableForASGs": ["NODE_ASGS"],
   "disableForASGs": [
   ],
   "enableForTags": [
