@@ -113,10 +113,9 @@ helm install \
     --set metricsRelistInterval=90s \
     --set prometheus.url=http://prometheus-server.metrics.svc \
     --set prometheus.port=80 \
-    --set resources.limits.cpu="100m",resources.limits.memory="100Mi"
-kubectl -n metrics \
-    rollout status \
-    deployment prometheus-adapter
+    --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
+    --values resources/prom-adapter-values.yml
+kubectl -n metrics rollout status deployment prometheus-adapter
 
 # install grafana
 helm install stable/grafana \
