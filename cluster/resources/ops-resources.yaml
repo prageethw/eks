@@ -1,34 +1,34 @@
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: ops-container-limit-range
-  namespace: ops
+  name: dev-container-limit-range
+  namespace: dev
 spec:
   limits:
   - default:
-      memory: 200Mi
-      cpu: 0.2
-    defaultRequest:
       memory: 100Mi
-      cpu: 0.1
+      cpu: 50m
+    defaultRequest:
+      memory: 10Mi
+      cpu: 5m
     max:
-      memory: 500Mi
-      cpu: 1
+      memory: 1000Mi
+      cpu: 500m
     min:
-      memory: 5Mi
-      cpu: 0.05
+      memory: 1Mi
+      cpu: 1m
     type: Container
 ---
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: ops-resource-quota
-  namespace: ops
+  name: dev-resource-quota
+  namespace: dev
 spec:
   hard:
-    requests.cpu: 30
-    requests.memory: 30Gi
-    limits.cpu: 50
-    limits.memory: 50Gi
-    pods: 100
+    requests.cpu: 10
+    requests.memory: 10Gi
+    limits.cpu: 15
+    limits.memory: 15Gi
+    pods: 25
     services.nodeports: "0"
