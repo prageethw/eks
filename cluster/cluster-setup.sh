@@ -218,7 +218,15 @@ done
         helm init --service-account tiller-dev --tiller-namespace dev
         helm init --service-account tiller-test --tiller-namespace test 
         helm init --service-account tiller-ops --tiller-namespace ops
-        
+        #delete service and only allow CLI helm comms , security patch as suggested here https://engineering.bitnami.com/articles/helm-security.html
+        kubectl -n kube-system delete service tiller-deploy
+        kubectl -n dev delete service tiller-deploy
+        kubectl -n test delete service tiller-deploy
+        kubectl -n ops delete service tiller-deploy
+        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
+        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
+        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
+        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
 	    kubectl -n kube-system rollout status deploy tiller-deploy
         kubectl -n dev rollout status deploy tiller-deploy
         kubectl -n test rollout status deploy tiller-deploy
