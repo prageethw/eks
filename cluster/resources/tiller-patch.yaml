@@ -1,0 +1,15 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: tiller
+          ports: []
+          command: ["/tiller"]
+          args: ["--listen=localhost:44134"]
+          resources:
+            limits:
+              memory: 50Mi
+              cpu: 10m
+            requests:
+              memory: 25Mi
+              cpu: 5m

@@ -16,7 +16,7 @@ spec:
       cpu: 4
     min:
       memory: 50Mi
-      cpu: 0.05
+      cpu: 10m
     type: Container
 ---
 apiVersion: v1

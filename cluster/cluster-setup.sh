@@ -98,12 +98,18 @@ done
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
 # --node-zones $ZONE3 \
 # --node-labels "chaos-gorilla=true" \
-#patch dns to support CA
-    kubectl apply -f ./resources/core-dns-pdb.yaml
 
 ### set kubeconfig
 
     export KUBECONFIG=keys/kubecfg-eks
+
+#patch dns to support CA
+    kubectl apply -f ./resources/core-dns-pdb.yaml
+#create namespaces
+    kubectl apply -f resources/cluster-namespaces.yaml
+############enable rbac and user creation #####    
+     sh set-up-k8s-users.sh
+#########################################
 
 #### intall ingress ####
 
@@ -212,7 +218,6 @@ done
 #### install helm if required ####
 
     if [[ ! -z "${USE_HELM}" ]]; then
-        kubectl apply -f resources/cluster-namespaces.yaml
         kubectl create -f resources/tiller-rbac.yml --record --save-config
         helm init --service-account tiller
         helm init --service-account tiller-dev --tiller-namespace dev
@@ -223,11 +228,11 @@ done
         kubectl -n dev delete service tiller-deploy
         kubectl -n test delete service tiller-deploy
         kubectl -n ops delete service tiller-deploy
-        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-	    kubectl -n kube-system rollout status deploy tiller-deploy
+        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n kube-system rollout status deploy tiller-deploy
         kubectl -n dev rollout status deploy tiller-deploy
         kubectl -n test rollout status deploy tiller-deploy
         kubectl -n ops rollout status deploy tiller-deploy
@@ -261,11 +266,6 @@ done
                --certificate-arn $AWS_SSL_CERT_ARN
     
 #################################
-
-###########enable rbac and user creation #####    
-     sh set-up-k8s-users.sh
-#########################################
-
 
 #####################################################################
 

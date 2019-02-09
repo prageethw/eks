@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: dev-container-limit-range
-  namespace: dev
+  name: test-container-limit-range
+  namespace: test
 spec:
   limits:
   - default:
@@ -22,8 +22,8 @@ spec:
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: dev-resource-quota
-  namespace: dev
+  name: test-resource-quota
+  namespace: test
 spec:
   hard:
     requests.cpu: 10
