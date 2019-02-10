@@ -75,10 +75,34 @@ eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME
 
 eksctl delete cluster -n $NAME #--wait
 
-# aws ec2 delete-security-group \
-#     --group-id $SG_NAME
-
-# aws  ec2 delete-vpc --vpc-id $VPC_NAME
+aws ec2 delete-security-group \
+    --group-id $SG_NAME
+    
+##wait till resources deleted before vpc deleted
+set +x
+ELB_INIT_SLEEP=300
+echo "Waiting $ELB_INIT_SLEEP sec for resources deleted"
+echo "count down is ..."
+while [ $ELB_INIT_SLEEP -gt 0 ]; do
+      echo -ne "$ELB_INIT_SLEEP\033[0K\r" 
+      sleep 1
+      : $((ELB_INIT_SLEEP--))
+done
+set -x
+# delete redundent volumes
+for ID in $(aws ec2 describe-volumes --filters Name=tag:kubernetes.io/cluster/$NAME,Values=owned | jq -r .Volumes[].VolumeId);
+do
+   aws ec2 delete-volume --volume-id $ID
+done
+set +x
+aws  ec2 delete-vpc --vpc-id $VPC_NAME
+while [ $? != 0 ]; do
+    SEC_WAIT=30
+    echo "will try again in :" $SEC_WAIT "secs"
+    sleep $SEC_WAIT
+    aws  ec2 delete-vpc --vpc-id $VPC_NAME
+done
+set -x
 
 # aws cloudformation wait stack-delete-complete  --stack-name "eksctl-$NAME-cluster"
 

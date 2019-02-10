@@ -161,9 +161,9 @@ done
     # | startswith(\"eksctl-$NAME-nodegroup\")) \
     # .AutoScalingGroupName")"
 
-    # export SG_NAME=$(aws ec2 describe-security-groups \
-    # --filters Name=group-name,Values=k8s-elb-$LB_NAME \
-    # | jq -r ".SecurityGroups[0].GroupId")
+    export SG_NAME=$(aws ec2 describe-security-groups \
+    --filters Name=group-name,Values=k8s-elb-$LB_NAME \
+    | jq -r ".SecurityGroups[0].GroupId")
 
     export VPC_NAME=$(aws ec2 \
     describe-vpcs \
@@ -282,6 +282,8 @@ echo "export LB_HOST=$LB_HOST"
 echo "export DOMAIN_NAME=$DOMAIN_NAME"
 echo "export ACCNT_ID=$ACCNT_ID"
 echo "export ASG_NAMES=$ASG_NAMES"
+echo "export SG_NAME=$SG_NAME"
+echo "export VPC_NAME=$VPC_NAME"
 echo "export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT"
 echo "export MIN_NODE_COUNT=$MIN_NODE_COUNT"
 echo "export PROM_ADDR=$PROM_ADDR"
@@ -308,6 +310,8 @@ export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
 export NAME=$NAME
 export LB_HOST=$LB_HOST
 export LB_NAME=$LB_NAME
+export SG_NAME=$SG_NAME
+export VPC_NAME=$VPC_NAME
 export DOMAIN_NAME=$DOMAIN_NAME
 export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN
 export PROM_ADDR=$PROM_ADDR
