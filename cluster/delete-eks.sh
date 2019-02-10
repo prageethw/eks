@@ -88,18 +88,25 @@ while [ $ELB_INIT_SLEEP -gt 0 ]; do
       sleep 1
       : $((ELB_INIT_SLEEP--))
 done
+
 set -x
 # delete redundent volumes
 for ID in $(aws ec2 describe-volumes --filters Name=tag:kubernetes.io/cluster/$NAME,Values=owned | jq -r .Volumes[].VolumeId);
 do
    aws ec2 delete-volume --volume-id $ID
 done
+# delete vpc there could be instances it can't be deleted by eksctl
 set +x
+COUNTER=1
 aws  ec2 delete-vpc --vpc-id $VPC_NAME
 while [ $? != 0 ]; do
     SEC_WAIT=30
     echo "will try again in :" $SEC_WAIT "secs"
     sleep $SEC_WAIT
+    COUNTER=$[$COUNTER +1]
+    if [ "$COUNTER" -eq 10 ]; then
+      break 
+    fi
     aws  ec2 delete-vpc --vpc-id $VPC_NAME
 done
 set -x
