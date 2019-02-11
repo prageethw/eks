@@ -25,7 +25,7 @@ export AWS_DEFAULT_REGION=[...]
 
 ```bash
 
-MASTER_COUNT=3  MAX_NODE_COUNT=10 NAME=prageethw MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium MY_ORG_DNS_NAME=prageethw.co USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 NAME=prageethw MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium MY_ORG_DNS_NAME=prageethw.co USE_HELM=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
 
 ```
 
