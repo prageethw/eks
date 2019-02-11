@@ -131,7 +131,7 @@ kubectl apply -f resources/rbac-ops.yaml
 kubectl apply -f resources/rbac-admin-user.yaml
 kubectl apply -f resources/default-resources.yaml
 kubectl apply -f resources/dev-resources.yaml
-kubectl apply -f resources/ingestor-resources.yaml
+# kubectl apply -f resources/ingestor-resources.yaml
 kubectl apply -f resources/prod-resources.yaml
 kubectl apply -f resources/test-resources.yaml
 kubectl apply -f resources/ops-resources.yaml
