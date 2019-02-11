@@ -96,6 +96,7 @@ helm install stable/prometheus \
     --set alertmanager.resources.requests.cpu="100m",server.resources.requests.memory="0.5Gi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
+kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
 kubectl -n metrics rollout status statefulset prometheus-alertmanager
 kubectl -n metrics rollout status statefulset prometheus-server
 kubectl apply -f resources/prometheus-pdb.yaml
