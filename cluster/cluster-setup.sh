@@ -328,5 +328,5 @@ export NG2_NAME=$NG2_NAME
 export NG3_NAME=$NG3_NAME
 export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT" \
     >k8s-eks-cluster.temp
-
+echo "the cluster KUBECONFIG logged in to $PWD/keys/kubecfg-eks ..."
 ########################################################################
