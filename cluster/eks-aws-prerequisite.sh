@@ -32,6 +32,11 @@ aws iam attach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess \
     --group-name eks
 
+aws iam put-group-policy \
+    --group-name eks \
+    --policy-name eks-kms \
+    --policy-document file://resources/eks-kms-policy.json
+
 # aws iam attach-group-policy \
 #     --policy-arn $EKS_POLICY_ARN \
 #     --group-name eks

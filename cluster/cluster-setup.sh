@@ -14,6 +14,15 @@ else
     export DOMAIN_NAME=$MY_ORG_DNS_NAME
     export BASIC_AUTH_PWD
     export ACCNT_ID=$(aws sts get-caller-identity --output text --query Account)
+    # create kms cmk
+    export KMS_CMK_ARN=$(aws kms create-key --description "kms master key to encrypt/decrypt helm secrets" | jq -r '.KeyMetadata.Arn')
+    aws kms create-alias --alias-name 'alias/helm-enc-dec-kms-cmk' --target-key-id $KMS_CMK_ARN
+    aws kms enable-key-rotation --key-id $KMS_CMK_ARN
+    KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN
+    KMS_CMK_ARN_ALIAS="${KMS_CMK_ARN_ALIAS%%:key*}"
+    export KMS_CMK_ARN_ALIAS="$KMS_CMK_ARN_ALIAS:alias/helm-enc-dec-kms-cmk"
+
+    #-------
     export EKS_POLICY_ARN=$(aws iam create-policy --policy-name eks-policy --policy-document file://resources/eks-policy.json | jq -r '.Policy.Arn')
     echo "The policy ARN " $EKS_POLICY_ARN
     echo "The selected k8s cluster name is :" $NAME
@@ -292,6 +301,8 @@ echo "export EKS_POLICY_ARN=$EKS_POLICY_ARN"
 echo "export DASHBOARD_ADDR=$DASHBOARD_ADDR"
 echo "export GRAFANA_ADDR=$GRAFANA_ADDR"
 echo "export MAX_NODE_COUNT=$NODE_COUNT"
+echo "export KMS_CMK_ARN=$KMS_CMK_ARN"
+echo "export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS"
 echo "export NG1_NAME=$NG1_NAME"
 echo "export NG2_NAME=$NG2_NAME"
 echo "export NG3_NAME=$NG3_NAME"
@@ -322,6 +333,8 @@ export MIN_NODE_COUNT=$MIN_NODE_COUNT
 export GRAFANA_ADDR=$GRAFANA_ADDR
 export DASHBOARD_ADDR=$DASHBOARD_ADDR
 export EKS_POLICY_ARN=$EKS_POLICY_ARN
+export KMS_CMK_ARN=$KMS_CMK_ARN
+export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS
 export ASG_NAMES=$ASG_NAMES
 export NG1_NAME=$NG1_NAME
 export NG2_NAME=$NG2_NAME

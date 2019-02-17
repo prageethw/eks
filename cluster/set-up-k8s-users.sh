@@ -62,6 +62,26 @@ aws iam put-group-policy \
     --policy-name eks-admin \
     --policy-document file://resources/admin-eks-iam-policy.temp.json
 
+
+#assign kms cmk to roles
+
+aws iam put-group-policy \
+    --group-name eks-dev \
+    --policy-name kms-dev \
+    --policy-document file://resources/user-kms-policy.json
+aws iam put-group-policy \
+    --group-name eks-test \
+    --policy-name kms-test \
+    --policy-document file://resources/user-kms-policy.json
+aws iam put-group-policy \
+    --group-name eks-ops \
+    --policy-name kms-ops \
+    --policy-document file://resources/user-kms-policy.json
+aws iam put-group-policy \
+    --group-name eks-admin \
+    --policy-name kms-admin \
+    --policy-document file://resources/user-kms-policy.json
+
 ##download keys
 
 mkdir -p keys/dev

@@ -13,6 +13,11 @@ aws iam delete-group-policy --policy-name eks-test --group-name eks-test
 aws iam delete-group-policy --policy-name eks-ops --group-name eks-ops
 aws iam delete-group-policy --policy-name eks-admin --group-name eks-admin
 
+aws iam delete-group-policy --policy-name kms-dev --group-name eks-dev
+aws iam delete-group-policy --policy-name kms-test --group-name eks-test
+aws iam delete-group-policy --policy-name kms-ops --group-name eks-ops
+aws iam delete-group-policy --policy-name kms-admin --group-name eks-admin
+
 # delete users from group
 aws iam remove-user-from-group \
     --user-name eks-dev \
