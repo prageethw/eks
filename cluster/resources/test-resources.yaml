@@ -13,7 +13,7 @@ spec:
       cpu: 5m
     max:
       memory: 1000Mi
-      cpu: 500m
+      cpu: 1000m
     min:
       memory: 1Mi
       cpu: 1m
@@ -26,9 +26,9 @@ metadata:
   namespace: test
 spec:
   hard:
-    requests.cpu: 10
-    requests.memory: 10Gi
-    limits.cpu: 15
-    limits.memory: 15Gi
-    pods: 25
+    requests.cpu: 30
+    requests.memory: 30Gi
+    limits.cpu: 50
+    limits.memory: 50Gi
+    pods: 100
     services.nodeports: "0"
