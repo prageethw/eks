@@ -122,6 +122,10 @@ aws acm delete-certificate \
     --certificate-arn $AWS_SSL_CERT_ARN
 
 # ##############################
+# delete kms cmk
+aws kms disable-key --key-id $KMS_CMK_ARN
+aws kms schedule-key-deletion --key-id $KMS_CMK_ARN --pending-window-in-days 7
+aws kms delete-alias --alias-name $KMS_CMK_ALIAS
 
 #### delete kubectl config ###
 

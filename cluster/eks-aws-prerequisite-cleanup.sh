@@ -47,11 +47,6 @@ aws iam delete-group-policy --policy-name eks-kms --group-name eks
 
 ############################
 
-# delete kms cmk
-aws kms disable-key --key-id $KMS_CMK_ARN
-aws kms schedule-key-deletion --key-id $KMS_CMK_ARN --pending-window-in-days 7
-aws kms delete-alias --alias-name 'alias/helm-enc-dec-kms-cmk'
-
 ############################
 # delete custom policy
 aws iam delete-policy --policy-arn $EKS_POLICY_ARN
