@@ -84,14 +84,16 @@ export AWS_SECRET_ACCESS_KEY=$(
 ###############################################
 
 ##### generate ssh keys ##########
-
+# remove if still exist
+rm -rf keys/k8s-eks.pem
 aws ec2 create-key-pair \
 --key-name eks-k8s \
 | jq -r '.KeyMaterial' \
 >keys/k8s-eks.pem
 
 chmod 400 keys/k8s-eks.pem
-
+# remove if still exist
+rm -rf keys/k8s-eks.pub
 ssh-keygen -y -f keys/k8s-eks.pem \
     >keys/k8s-eks.pub
 

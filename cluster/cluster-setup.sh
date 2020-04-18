@@ -54,6 +54,10 @@ for i in "${ADDR[@]}"; do
     ((j++))
 done
 
+### set kubeconfig
+
+export KUBECONFIG=keys/kubecfg-eks
+
 #### create eks cluster ####
     eksctl create cluster \
     -n $NAME \
@@ -66,7 +70,8 @@ done
     --asg-access \
     --without-nodegroup \
     --external-dns-access \
-    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
+    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub} \
+    --version=1.14
     # --tags "k8s.io/cluster-autoscaler/enabled=true" \
 ### add additional node groups to resolve volume bidning issues.NOTE: tags not supported still for nodegroups
 
@@ -81,7 +86,8 @@ done
     --nodes-min ${MIN_NODE_COUNT:-3} \
     --asg-access \
     --external-dns-access \
-    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
+    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub} 
+    # --managed
 #----------ng2
     eksctl create nodegroup \
     --cluster $NAME \
@@ -93,7 +99,8 @@ done
     --nodes-min ${MIN_NODE_COUNT:-3} \
     --asg-access \
     --external-dns-access \
-    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
+    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub} 
+    # --managed
 # --node-zones $ZONE2 \
 #----------ng3
     eksctl create nodegroup \
@@ -106,13 +113,11 @@ done
     --nodes-min 0 \
     --asg-access \
     --external-dns-access \
-    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
+    --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub} 
+    # --managed
 # --node-zones $ZONE3 \
 # --node-labels "chaos-gorilla=true" \
 
-### set kubeconfig
-
-    export KUBECONFIG=keys/kubecfg-eks
 
 #patch dns to support CA
     kubectl apply -f ./resources/core-dns-pdb.yaml
@@ -309,6 +314,10 @@ echo "export KMS_CMK_ALIAS=$CMK_ALIAS"
 echo "export NG1_NAME=$NG1_NAME"
 echo "export NG2_NAME=$NG2_NAME"
 echo "export NG3_NAME=$NG3_NAME"
+echo "export ZONE1=$ZONE1"
+echo "export ZONE2=$ZONE2"
+echo "export ZONE3=$ZONE3"
+
 echo ""
 echo "------------------------------------------"
 echo ""
@@ -343,6 +352,9 @@ export ASG_NAMES=$ASG_NAMES
 export NG1_NAME=$NG1_NAME
 export NG2_NAME=$NG2_NAME
 export NG3_NAME=$NG3_NAME
+export ZONE1=$ZONE1
+export ZONE2=$ZONE2
+export ZONE3=$ZONE3
 export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT" \
     >k8s-eks-cluster.temp
 echo "the cluster KUBECONFIG logged in to $PWD/keys/kubecfg-eks ..."

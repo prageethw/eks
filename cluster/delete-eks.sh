@@ -68,40 +68,51 @@ aws iam delete-user --user-name eks-admin
 aws elb delete-load-balancer \
     --load-balancer-name $LB_NAME
 
+set +x
+INIT_SLEEP=10
+echo "Waiting $INIT_SLEEP sec for resources deleted"
+echo "count down is ..."
+while [ $INIT_SLEEP -gt 0 ]; do
+      echo -ne "$INIT_SLEEP\033[0K\r" 
+      sleep 1
+      : $((INIT_SLEEP--))
+done
+set -x
 # aws iam delete-role-policy \
 #     --role-name $IAM_ROLE \
 #     --policy-name nodes.$NAME-AutoScaling
 
-# delete added nodegroups to speedup deletion
 
-eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME
-eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME
-eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME
+# delete added nodegroups to speedup deletion
+set -x
+eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME --drain=false
+eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME --drain=false
+eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME --drain=false
+set +x
+INIT_SLEEP=300
+echo "Waiting $INIT_SLEEP sec for NG resources deleted"
+echo "count down is ..."
+while [ $INIT_SLEEP -gt 0 ]; do
+      echo -ne "$INIT_SLEEP\033[0K\r" 
+      sleep 1
+      : $((INIT_SLEEP--))
+done
+set -x
+aws ec2 delete-security-group \
+    --group-id $SG_NAME
 
 eksctl delete cluster -n $NAME #--wait
 
-aws ec2 delete-security-group \
-    --group-id $SG_NAME
-    
-##wait till resources deleted before vpc deleted
-set +x
-ELB_INIT_SLEEP=300
-echo "Waiting $ELB_INIT_SLEEP sec for resources deleted"
-echo "count down is ..."
-while [ $ELB_INIT_SLEEP -gt 0 ]; do
-      echo -ne "$ELB_INIT_SLEEP\033[0K\r" 
-      sleep 1
-      : $((ELB_INIT_SLEEP--))
-done
-
-set -x
 # delete redundent volumes
 for ID in $(aws ec2 describe-volumes --filters Name=tag:kubernetes.io/cluster/$NAME,Values=owned | jq -r .Volumes[].VolumeId);
 do
    aws ec2 delete-volume --volume-id $ID
 done
-# delete vpc there could be instances it can't be deleted by eksctl
+
 set +x
+# delete vpc there could be instances it can't be deleted by eksctl
+TIMES=15
+echo "Trying to delete vpc for $TIMES before giving up!"
 COUNTER=1
 aws  ec2 delete-vpc --vpc-id $VPC_NAME
 while [ $? != 0 ]; do
@@ -109,15 +120,14 @@ while [ $? != 0 ]; do
     echo "will try again in :" $SEC_WAIT "secs"
     sleep $SEC_WAIT
     COUNTER=$[$COUNTER +1]
-    if [ "$COUNTER" -eq 10 ]; then
+    if [ "$COUNTER" -eq $TIMES ]; then
       break 
     fi
     aws  ec2 delete-vpc --vpc-id $VPC_NAME
 done
+
 set -x
-
 # aws cloudformation wait stack-delete-complete  --stack-name "eksctl-$NAME-cluster"
-
 aws acm delete-certificate \
     --certificate-arn $AWS_SSL_CERT_ARN
 
