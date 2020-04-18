@@ -266,6 +266,18 @@ done
     export AM_ADDR=alertmanager.cluster.$DOMAIN_NAME
     export GRAFANA_ADDR=grafana.cluster.$DOMAIN_NAME
     export DASHBOARD_ADDR=kubernetes-dashboard.cluster.$DOMAIN_NAME
+    export MESH_GRAFANA_ADDR=mesh-grafana.cluster.$DOMAIN_NAME
+    export MESH_PROM_ADDR=mesh-monitor.cluster.$DOMAIN_NAME
+    export MESH_KIALI_ADDR=mesh-kiali.cluster.$DOMAIN_NAME
+    export MESH_JAEGER_ADDR=mesh-jaeger.cluster.$DOMAIN_NAME
+
+#####install istio crds to enable external DNS to support istio gateway#######
+     echo "installing istio crds "
+     echo ""
+     kubectl apply -f resources/istio/base/istio-crds.yaml
+     echo ""
+
+################################################################
 
 #######install tools ###########################################
 
@@ -276,6 +288,9 @@ done
 
 ################################################################
 
+    if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
+        ./set-up-istio.sh
+    fi
 ##### SSL offloading ########
 
      aws acm wait certificate-validated \
@@ -317,6 +332,10 @@ echo "export NG3_NAME=$NG3_NAME"
 echo "export ZONE1=$ZONE1"
 echo "export ZONE2=$ZONE2"
 echo "export ZONE3=$ZONE3"
+echo "export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR"
+echo "export MESH_PROM_ADDR=$MESH_PROM_ADDR"
+echo "export MESH_KIALI_ADDR=$MESH_KIALI_ADDR"
+echo "export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR"
 
 echo ""
 echo "------------------------------------------"
@@ -355,7 +374,11 @@ export NG3_NAME=$NG3_NAME
 export ZONE1=$ZONE1
 export ZONE2=$ZONE2
 export ZONE3=$ZONE3
-export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT" \
+export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT
+export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR
+export MESH_PROM_ADDR=$MESH_PROM_ADDR
+export MESH_KIALI_ADDR=$MESH_KIALI_ADDR
+export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR" \
     >k8s-eks-cluster.temp
 echo "the cluster KUBECONFIG logged in to $PWD/keys/kubecfg-eks ..."
 ########################################################################

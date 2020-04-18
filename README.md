@@ -25,12 +25,13 @@ export AWS_DEFAULT_REGION=[...]
 
 ```bash
 
-MASTER_COUNT=3  MAX_NODE_COUNT=10 NAME=prageethw MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium MY_ORG_DNS_NAME=prageethw.co USE_HELM=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 NAME=prageethw MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium MY_ORG_DNS_NAME=prageethw.co USE_HELM=true UPDATE_ISTIO_MESH="" INSTALL_ISTIO_MESH=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
 
 ```
 
 **Note:**
 Above command will create a cluster named example with 3 master nodes and 3 worker nodes in each AZ.
+BASIC_AUTH_PWD is the password you need to login to monitoring and alerting systems.To set something false pass "" as the value
 
 ## 2.  delete cluster
 
