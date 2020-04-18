@@ -1,0 +1,106 @@
+###########
+###grfana
+###########
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+    nginx.ingress.kubernetes.io/auth-secret: sysops
+    nginx.ingress.kubernetes.io/auth-type: basic
+  labels:
+    app: grafana
+  name: grafana
+  namespace: istio-system
+spec:
+  rules:
+  - host: MESH_GRAFANA_ADDR
+    http:
+      paths:
+      - backend:
+          serviceName: grafana
+          servicePort: 3000
+        path: /
+---
+########
+### prometheus
+########
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+    nginx.ingress.kubernetes.io/auth-secret: sysops
+    nginx.ingress.kubernetes.io/auth-type: basic
+  labels:
+    app: prometheus
+  name: prometheus
+  namespace: istio-system
+spec:
+  rules:
+  - host: MESH_PROM_ADDR
+    http:
+      paths:
+      - backend:
+          serviceName: prometheus
+          servicePort: 9090
+        path: /
+---
+########
+### tracing tool is jaeger
+########
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+    nginx.ingress.kubernetes.io/auth-secret: sysops
+    nginx.ingress.kubernetes.io/auth-type: basic
+  labels:
+    app: jaeger
+  name: jaeger
+  namespace: istio-system
+spec:
+  rules:
+  - host: MESH_JAEGER_ADDR
+    http:
+      paths:
+      - backend:
+          serviceName: tracing
+          servicePort: 80
+        path: /
+---
+########
+### kiali
+########
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+    # nginx.ingress.kubernetes.io/auth-secret: sysops
+    # nginx.ingress.kubernetes.io/auth-type: basic
+  labels:
+    app: kiali
+  name: kiali
+  namespace: istio-system
+spec:
+  rules:
+  - host: MESH_KIALI_ADDR
+    http:
+      paths:
+      - backend:
+          serviceName: kiali
+          servicePort: 20001
+        path: /
+---
+
+
