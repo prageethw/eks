@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 source ./k8s-eks-cluster.temp
 # prepare for update
 export NG_PREFIX=$(date +%s)
@@ -81,12 +80,12 @@ set +x
       : $((INIT_SLEEP--))
     done
 ######################################
-
+set -x
 # checking whether cluster ok
     kubectl get pods -n kube-system
 
 #####################################################################
-
+set +x
     echo ""
     echo "------------------------------------------"
     echo ""

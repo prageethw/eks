@@ -109,22 +109,22 @@ do
    aws ec2 delete-volume --volume-id $ID
 done
 
-set +x
-# delete vpc there could be instances it can't be deleted by eksctl
-TIMES=15
-echo "Trying to delete vpc for $TIMES before giving up!"
-COUNTER=1
-aws  ec2 delete-vpc --vpc-id $VPC_NAME
-while [ $? != 0 ]; do
-    SEC_WAIT=30
-    echo "will try again in :" $SEC_WAIT "secs"
-    sleep $SEC_WAIT
-    COUNTER=$[$COUNTER +1]
-    if [ "$COUNTER" -eq $TIMES ]; then
-      break 
-    fi
-    aws  ec2 delete-vpc --vpc-id $VPC_NAME
-done
+# set +x
+# # delete vpc there could be instances it can't be deleted by eksctl
+# TIMES=15
+# echo "Trying to delete vpc for $TIMES before giving up!"
+# COUNTER=1
+# aws  ec2 delete-vpc --vpc-id $VPC_NAME
+# while [ $? != 0 ]; do
+#     SEC_WAIT=30
+#     echo "will try again in :" $SEC_WAIT "secs"
+#     sleep $SEC_WAIT
+#     COUNTER=$[$COUNTER +1]
+#     if [ "$COUNTER" -eq $TIMES ]; then
+#       break 
+#     fi
+#     aws  ec2 delete-vpc --vpc-id $VPC_NAME
+# done
 
 set -x
 # aws cloudformation wait stack-delete-complete  --stack-name "eksctl-$NAME-cluster"

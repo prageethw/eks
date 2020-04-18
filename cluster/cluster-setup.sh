@@ -17,7 +17,7 @@ else
     # create kms cmk
     export KMS_CMK_ARN=$(aws kms create-key --description "kms master key to encrypt/decrypt helm secrets" | jq -r '.KeyMetadata.Arn')
     #alias for CMK
-    CMK_ALIAS="alias/helm-enc-dec-kms-cmk"-$(date +%s)
+    export CMK_ALIAS="alias/helm-enc-dec-kms-cmk"-$(date +%s)
     aws kms create-alias --alias-name $CMK_ALIAS --target-key-id $KMS_CMK_ARN    
     aws kms enable-key-rotation --key-id $KMS_CMK_ARN
     KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN

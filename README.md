@@ -48,3 +48,7 @@ Users of can be given a package (**.zip**) file that will be generated in /clust
 
 Once users get their package, they can read README.md and point them to K8s cluster. login details for Kube dashboard,
 monitoring and alerting tools will be displayed as part of context set.
+
+## 5. Upgrade cluster
+
+MAX_NODE_COUNT=10  MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium time sh -x eks-rolling-update.sh
