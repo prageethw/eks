@@ -1,10 +1,10 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: external-dns
-  namespace: external-dns
+  name: kube-metrics-adapter
+  namespace: metrics
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: external-dns
+      app: kube-metrics-adapter

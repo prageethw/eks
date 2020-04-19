@@ -266,6 +266,18 @@ done
     export AM_ADDR=alertmanager.cluster.$DOMAIN_NAME
     export GRAFANA_ADDR=grafana.cluster.$DOMAIN_NAME
     export DASHBOARD_ADDR=kubernetes-dashboard.cluster.$DOMAIN_NAME
+    export MESH_GRAFANA_ADDR=mesh-grafana.cluster.$DOMAIN_NAME
+    export MESH_PROM_ADDR=mesh-monitor.cluster.$DOMAIN_NAME
+    export MESH_KIALI_ADDR=mesh-kiali.cluster.$DOMAIN_NAME
+    export MESH_JAEGER_ADDR=mesh-jaeger.cluster.$DOMAIN_NAME
+
+#####install istio crds to enable external DNS to support istio gateway#######
+     echo "installing istio crds "
+     echo ""
+     kubectl apply -f resources/istio/base/istio-crds.yaml
+     echo ""
+
+################################################################
 
 #######install tools ###########################################
 
@@ -276,12 +288,47 @@ done
 
 ################################################################
 
+    if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
+        ./set-up-istio.sh
+    fi
 ##### SSL offloading ########
 
      aws acm wait certificate-validated \
                --certificate-arn $AWS_SSL_CERT_ARN
     
 #################################
+
+###istio load balancer#############
+
+    export ISTIO_LB_HOST=$(kubectl -n istio-system \
+        get svc istio-ingressgateway \
+        -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+
+    export ISTIO_LB_IP="$(dig +short $ISTIO_LB_HOST | tail -n 1)"
+
+    export ISTIO_LB_NAME=$(aws elb \
+    describe-load-balancers \
+    | jq -r \
+    ".LoadBalancerDescriptions[1] \
+    | select(.SourceSecurityGroup.GroupName \
+    | contains (\"k8s-elb\")) \
+    .LoadBalancerName")
+
+    echo "Waiting for  ISTIO ELB to become available..."
+    echo ""
+    
+    aws elb wait  instance-in-service \
+                      --load-balancer-name $ISTIO_LB_NAME
+
+    export ISTIO_SG_NAME=$(aws ec2 describe-security-groups \
+    --filters Name=group-name,Values=k8s-elb-$ISTIO_LB_NAME \
+    | jq -r ".SecurityGroups[0].GroupId")
+
+
+
+
+
+
 
 #####################################################################
 
@@ -292,13 +339,17 @@ echo "The cluster is ready. Please execute the commands that follow to create th
 echo ""
 echo "export NAME=$NAME"
 echo "export LB_IP=$LB_IP"
+echo "export ISTIO_LB_IP=$ISTIO_LB_IP"
 echo "export LB_NAME=$LB_NAME"
+echo "export ISTIO_LB_NAME=$ISTIO_LB_NAME"
 echo "export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN"
 echo "export LB_HOST=$LB_HOST"
+echo "export ISTIO_LB_HOST=$ISTIO_LB_HOST"
 echo "export DOMAIN_NAME=$DOMAIN_NAME"
 echo "export ACCNT_ID=$ACCNT_ID"
 echo "export ASG_NAMES=$ASG_NAMES"
 echo "export SG_NAME=$SG_NAME"
+echo "export ISTIO_SG_NAME=$ISTIO_SG_NAME"
 echo "export VPC_NAME=$VPC_NAME"
 echo "export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT"
 echo "export MIN_NODE_COUNT=$MIN_NODE_COUNT"
@@ -317,6 +368,10 @@ echo "export NG3_NAME=$NG3_NAME"
 echo "export ZONE1=$ZONE1"
 echo "export ZONE2=$ZONE2"
 echo "export ZONE3=$ZONE3"
+echo "export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR"
+echo "export MESH_PROM_ADDR=$MESH_PROM_ADDR"
+echo "export MESH_KIALI_ADDR=$MESH_KIALI_ADDR"
+echo "export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR"
 
 echo ""
 echo "------------------------------------------"
@@ -334,6 +389,11 @@ export NAME=$NAME
 export LB_HOST=$LB_HOST
 export LB_NAME=$LB_NAME
 export SG_NAME=$SG_NAME
+export LB_IP=$LB_IP
+export ISTIO_LB_HOST=$ISTIO_LB_HOST
+export ISTIO_LB_NAME=$ISTIO_LB_NAME
+export ISTIO_SG_NAME=$ISTIO_SG_NAME
+export ISTIO_LB_IP=$ISTIO_LB_IP
 export VPC_NAME=$VPC_NAME
 export DOMAIN_NAME=$DOMAIN_NAME
 export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN
@@ -355,7 +415,11 @@ export NG3_NAME=$NG3_NAME
 export ZONE1=$ZONE1
 export ZONE2=$ZONE2
 export ZONE3=$ZONE3
-export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT" \
+export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT
+export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR
+export MESH_PROM_ADDR=$MESH_PROM_ADDR
+export MESH_KIALI_ADDR=$MESH_KIALI_ADDR
+export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR" \
     >k8s-eks-cluster.temp
 echo "the cluster KUBECONFIG logged in to $PWD/keys/kubecfg-eks ..."
 ########################################################################

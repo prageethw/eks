@@ -1,0 +1,44 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kiali
+  namespace: istio-system 
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: kiali
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: jaeger
+  namespace: istio-system
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: jaeger
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: prometheus
+  namespace: istio-system
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: prometheus
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: grafana
+  namespace: istio-system
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: grafana
+---

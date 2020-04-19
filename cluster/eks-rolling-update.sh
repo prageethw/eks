@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 source ./k8s-eks-cluster.temp
 # prepare for update
 export NG_PREFIX=$(date +%s)
@@ -58,10 +59,13 @@ else
     --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
     # --managed
-
-    eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME #--drain=false
-    eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME #--drain=false
-    eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME #--drain=false
+# delete old NGs
+    kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true
+    eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME --drain=false
+    kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true
+    eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME --drain=false
+    kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true
+    eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME --drain=false
 
 # To update kube-proxy, run:
     eksctl utils update-kube-proxy --cluster=$NAME
@@ -111,13 +115,21 @@ set +x
     echo "export MAX_NODE_COUNT=$NODE_COUNT"
     echo "export KMS_CMK_ARN=$KMS_CMK_ARN"
     echo "export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS"
-    echo "export KMS_CMK_ALIAS=$CMK_ALIAS"
+    echo "export KMS_CMK_ALIAS=$KMS_CMK_ALIAS"
     echo "export NG1_NAME=$NG1_NEW_NAME"
     echo "export NG2_NAME=$NG2_NEW_NAME"
     echo "export NG3_NAME=$NG3_NEW_NAME"
     echo "export ZONE1=$ZONE1"
     echo "export ZONE2=$ZONE2"
     echo "export ZONE3=$ZONE3"
+    echo "export ISTIO_SG_NAME=$ISTIO_SG_NAME"
+    echo "export ISTIO_LB_HOST=$ISTIO_LB_HOST"
+    echo "export ISTIO_LB_NAME=$ISTIO_LB_NAME"
+    echo "export ISTIO_LB_IP=$ISTIO_LB_IP"
+    echo "export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR"
+    echo "export MESH_PROM_ADDR=$MESH_PROM_ADDR"
+    echo "export MESH_KIALI_ADDR=$MESH_KIALI_ADDR"
+    echo "export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR"
 
     echo ""
     echo "------------------------------------------"
@@ -134,6 +146,11 @@ set +x
     export LB_HOST=$LB_HOST
     export LB_NAME=$LB_NAME
     export SG_NAME=$SG_NAME
+    export LB_IP=$LB_IP
+    export ISTIO_LB_HOST=$ISTIO_LB_HOST
+    export ISTIO_LB_NAME=$ISTIO_LB_NAME
+    export ISTIO_SG_NAME=$ISTIO_SG_NAME
+    export ISTIO_LB_IP=$ISTIO_LB_IP
     export VPC_NAME=$VPC_NAME
     export DOMAIN_NAME=$DOMAIN_NAME
     export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN
@@ -147,7 +164,7 @@ set +x
     export EKS_POLICY_ARN=$EKS_POLICY_ARN
     export KMS_CMK_ARN=$KMS_CMK_ARN
     export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS
-    export KMS_CMK_ALIAS=$CMK_ALIAS
+    export KMS_CMK_ALIAS=$KMS_CMK_ALIAS
     export ASG_NAMES=$ASG_NAMES
     export NG1_NAME=$NG1_NEW_NAME
     export NG2_NAME=$NG2_NEW_NAME
@@ -155,6 +172,10 @@ set +x
     export ZONE1=$ZONE1
     export ZONE2=$ZONE2
     export ZONE3=$ZONE3
+    export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR
+    export MESH_PROM_ADDR=$MESH_PROM_ADDR
+    export MESH_KIALI_ADDR=$MESH_KIALI_ADDR
+    export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR
     export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT" \
         >k8s-eks-cluster.temp
 fi
