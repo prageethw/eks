@@ -1,6 +1,6 @@
 # aws-eks
 
-This repo contains files that will help you to create a K8s cluster using Kops on the fly.
+This repo contains files that will help you to create a K8s cluster using eksctl on the fly.
 
 ## required pre-conditions
 
@@ -24,7 +24,7 @@ export AWS_SECRET_ACCESS_KEY=[...]
 export AWS_DEFAULT_REGION=[...]
 ```
 
-## 1.  build a kops k8s cluster
+## 1.  build a eks k8s cluster
 
 ```bash
 
