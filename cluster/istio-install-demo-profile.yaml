@@ -11279,7 +11279,7 @@ metadata:
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
     service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-2:916273042041:certificate/9871068f-4664-4bd3-8ada-2c9cca4107e4
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-2:916273042041:certificate/b8a60618-2c91-408c-bcbd-1036fffda772
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
   labels:
     app: istio-ingressgateway

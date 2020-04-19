@@ -67,7 +67,8 @@ aws iam delete-user --user-name eks-admin
 
 aws elb delete-load-balancer \
     --load-balancer-name $LB_NAME
-
+aws elb delete-load-balancer \
+    --load-balancer-name $ISTIO_LB_NAME
 set +x
 INIT_SLEEP=10
 echo "Waiting $INIT_SLEEP sec for resources deleted"
@@ -100,7 +101,8 @@ done
 set -x
 aws ec2 delete-security-group \
     --group-id $SG_NAME
-
+aws ec2 delete-security-group \
+    --group-id $ISTIO_SG_NAME
 eksctl delete cluster -n $NAME #--wait
 
 # delete redundent volumes

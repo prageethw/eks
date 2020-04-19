@@ -111,13 +111,17 @@ set +x
     echo "export MAX_NODE_COUNT=$NODE_COUNT"
     echo "export KMS_CMK_ARN=$KMS_CMK_ARN"
     echo "export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS"
-    echo "export KMS_CMK_ALIAS=$CMK_ALIAS"
+    echo "export KMS_CMK_ALIAS=$KMS_CMK_ALIAS"
     echo "export NG1_NAME=$NG1_NEW_NAME"
     echo "export NG2_NAME=$NG2_NEW_NAME"
     echo "export NG3_NAME=$NG3_NEW_NAME"
     echo "export ZONE1=$ZONE1"
     echo "export ZONE2=$ZONE2"
     echo "export ZONE3=$ZONE3"
+    echo "export ISTIO_SG_NAME=$ISTIO_SG_NAME"
+    echo "export ISTIO_LB_HOST=$ISTIO_LB_HOST"
+    echo "export ISTIO_LB_NAME=$ISTIO_LB_NAME"
+    echo "export ISTIO_LB_IP=$ISTIO_LB_IP"
 
     echo ""
     echo "------------------------------------------"
@@ -134,6 +138,11 @@ set +x
     export LB_HOST=$LB_HOST
     export LB_NAME=$LB_NAME
     export SG_NAME=$SG_NAME
+    export LB_IP=$LB_IP
+    export ISTIO_LB_HOST=$ISTIO_LB_HOST
+    export ISTIO_LB_NAME=$ISTIO_LB_NAME
+    export ISTIO_SG_NAME=$ISTIO_SG_NAME
+    export ISTIO_LB_IP=$ISTIO_LB_IP
     export VPC_NAME=$VPC_NAME
     export DOMAIN_NAME=$DOMAIN_NAME
     export AWS_SSL_CERT_ARN=$AWS_SSL_CERT_ARN
@@ -147,7 +156,7 @@ set +x
     export EKS_POLICY_ARN=$EKS_POLICY_ARN
     export KMS_CMK_ARN=$KMS_CMK_ARN
     export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS
-    export KMS_CMK_ALIAS=$CMK_ALIAS
+    export KMS_CMK_ALIAS=$KMS_CMK_ALIAS
     export ASG_NAMES=$ASG_NAMES
     export NG1_NAME=$NG1_NEW_NAME
     export NG2_NAME=$NG2_NEW_NAME

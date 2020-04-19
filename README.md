@@ -52,4 +52,4 @@ monitoring and alerting tools will be displayed as part of context set.
 
 ## 5. Upgrade cluster
 
-MAX_NODE_COUNT=10  MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium time sh -x eks-rolling-update.sh
+MAX_NODE_COUNT=10  MIN_NODE_COUNT=1 DESIRED_NODE_COUNT=1 NODE_TYPE=t3.medium time sh -x update-k8s-cluster.sh
