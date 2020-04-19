@@ -7,4 +7,5 @@ k8s*
 key*
 .DS_Store
 *k8s.local.yaml
-
+istio-install*
+*.temp.yaml
