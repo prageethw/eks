@@ -10,6 +10,9 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 4. Helm.
 5. iam authenticator.
 6. eksctl.
+7. Kustomize
+8. Istioctl
+9. Mac OS
 
 ## set-up terminal with AWS access details
 
