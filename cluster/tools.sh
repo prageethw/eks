@@ -139,7 +139,6 @@ helm install stable/grafana \
     --version 4.3.0 \
     --set persistence.type="statefulset" \
     --set persistence.size="5Gi" \
-    --set podDisruptionBudget.minAvailable=0 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
     --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
     --values resources/grafana-values.yml

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 source ./k8s-eks-cluster.temp
 # prepare for update
 export NG_PREFIX=$(date +%s)
@@ -58,10 +59,13 @@ else
     --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
     # --managed
-
-    eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME #--drain=false
-    eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME #--drain=false
-    eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME #--drain=false
+# delete old NGs
+    kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true
+    eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME --drain=false
+    kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true
+    eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME --drain=false
+    kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true
+    eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME --drain=false
 
 # To update kube-proxy, run:
     eksctl utils update-kube-proxy --cluster=$NAME
@@ -122,6 +126,10 @@ set +x
     echo "export ISTIO_LB_HOST=$ISTIO_LB_HOST"
     echo "export ISTIO_LB_NAME=$ISTIO_LB_NAME"
     echo "export ISTIO_LB_IP=$ISTIO_LB_IP"
+    echo "export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR"
+    echo "export MESH_PROM_ADDR=$MESH_PROM_ADDR"
+    echo "export MESH_KIALI_ADDR=$MESH_KIALI_ADDR"
+    echo "export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR"
 
     echo ""
     echo "------------------------------------------"
@@ -164,6 +172,10 @@ set +x
     export ZONE1=$ZONE1
     export ZONE2=$ZONE2
     export ZONE3=$ZONE3
+    export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR
+    export MESH_PROM_ADDR=$MESH_PROM_ADDR
+    export MESH_KIALI_ADDR=$MESH_KIALI_ADDR
+    export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR
     export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT" \
         >k8s-eks-cluster.temp
 fi
