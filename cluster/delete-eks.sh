@@ -146,4 +146,6 @@ rm -rf k8s*
 rm resources/*.temp.json
 rm resources/*.temp.yaml
 rm -rf keys
+rm -rf *.temp.yaml
+rm -rf istio-install-*
 ##############################
