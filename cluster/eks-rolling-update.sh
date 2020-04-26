@@ -61,10 +61,14 @@ else
     # --managed
 # delete old NGs
     kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true
-    eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME --drain=false
     kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true
-    eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME --drain=false
     kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true
+# wait 30 seconds to allow draining.
+    echo "Waiting 30 seconds to allow draining..."
+    sleep 30
+    echo "Go ahead and do a force removal"
+    eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME --drain=false
+    eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME --drain=false
     eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME --drain=false
 
 # To update kube-proxy, run:
