@@ -180,7 +180,7 @@ kubectl auth can-i create pods --as  dev  -n test
 kubectl auth can-i create pods --as  ops  -n ops
 kubectl auth can-i create pods --as  ops  -n test
 kubectl auth can-i create pods --as  ops  -n dev
-kubectl auth can-i create pods --as  ops  -n ingestor
+# kubectl auth can-i create pods --as  ops  -n ingestor
 kubectl auth can-i create pods --as  ops  -n prod
 echo ""
 echo "should be no "
