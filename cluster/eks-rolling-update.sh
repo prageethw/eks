@@ -64,9 +64,20 @@ else
     kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true
     kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true
 # wait 30 seconds to allow draining.
-    echo "Waiting 30 seconds to allow draining..."
-    sleep 30
-    echo "Go ahead and do a force removal"
+    echo "Waiting 120 seconds to allow draining..."
+    set +x
+### wait till k8s pods comes alive
+    INIT_SLEEP=120
+    echo "Waiting $INIT_SLEEP sec for pods to drained..."
+    echo "count down is ..."
+    while [ $INIT_SLEEP -gt 0 ]; do
+      echo -ne "$INIT_SLEEP\033[0K\r" 
+      sleep 1
+      : $((INIT_SLEEP--))
+    done
+######################################
+    set -x
+    echo "Go ahead and do a force removal if still node is available"
     eksctl delete nodegroup --cluster=$NAME --name=$NG1_NAME --drain=false
     eksctl delete nodegroup --cluster=$NAME --name=$NG2_NAME --drain=false
     eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME --drain=false
