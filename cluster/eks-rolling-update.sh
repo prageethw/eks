@@ -83,11 +83,11 @@ else
     eksctl delete nodegroup --cluster=$NAME --name=$NG3_NAME --drain=false
 
 # To update kube-proxy, run:
-    eksctl utils update-kube-proxy --cluster=$NAME
+    eksctl utils update-kube-proxy --cluster=$NAME --approve
 # To update aws-node, run:
-    eksctl utils update-aws-node --cluster=$NAME
+    eksctl utils update-aws-node --cluster=$NAME --approve
 # To update coredns, run:
-    eksctl utils update-coredns --cluster=$NAME
+    eksctl utils update-coredns --cluster=$NAME --approve
 set +x
 ### wait till k8s pods comes alive
     INIT_SLEEP=60
