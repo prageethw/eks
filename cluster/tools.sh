@@ -49,9 +49,9 @@ helm install stable/external-dns --namespace external-dns --name external-dns --
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
         --set rbac.create=true \
-        --set txtPrefix=kops- \
+        --set txtPrefix=eks- \
         --set policy=sync \
-        --set txtOwnerId=kops \
+        --set txtOwnerId=eks \
         --set sources="{ingress,istio-gateway}" \
         --set istioIngressGateways={istio-system/istio-ingressgateway} \
         --set resources.limits.cpu="200m",resources.limits.memory="100Mi" 

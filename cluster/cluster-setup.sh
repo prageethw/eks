@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#### set kops env ####
+#### set eks env ####
 
 source ./set-eks.env
 
