@@ -5,17 +5,21 @@ if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
     istioctl manifest generate --set profile=minimal --set components.pilot.enabled=false >resources/istio/base/istio-crds.yaml
     # generate demo profile that gives everything we need in cluster pretty much 
     # --set values.global.jwtPolicy=first-party-jwt if pods hangs due to jwt issues
-    istioctl manifest generate --set profile=demo \
-                            --set values.kiali.createDemoSecret=false \
-                            --set values.global.proxy.resources.limits.memory="300Mi" \
-                            --set values.global.proxy.resources.limits.cpu="100m" \
-                            --set values.gateways.istio-ingressgateway.resources.limits.memory="500Mi" \
-                            --set values.gateways.istio-ingressgateway.resources.limits.cpu="200m" \
-                            --set values.gateways.istio-egressgateway.resources.limits.memory="300Mi" \
-                            --set values.gateways.istio-egressgateway.resources.limits.cpu="100m" \
-                            --set values.global.defaultResources.requests.memory="100Mi" \
-                            --set values.global.defaultResources.requests.cpu="50m" \
-                            >resources/istio/base/istio-demo-profile.yaml
+    istioctl manifest generate --set profile=default \
+                         --set values.gateways.istio-egressgateway.enabled=true \
+                         --set values.kiali.createDemoSecret=false \
+                         --set values.global.proxy.resources.limits.memory="300Mi" \
+                         --set values.global.proxy.resources.limits.cpu="100m" \
+                         --set values.gateways.istio-ingressgateway.resources.limits.memory="500Mi" \
+                         --set values.gateways.istio-ingressgateway.resources.limits.cpu="200m" \
+                         --set values.gateways.istio-egressgateway.resources.limits.memory="300Mi" \
+                         --set values.gateways.istio-egressgateway.resources.limits.cpu="100m" \
+                         --set values.global.defaultResources.requests.memory="100Mi" \
+                         --set values.global.defaultResources.requests.cpu="50m" \
+                         --set addonComponents.grafana.enabled=true \
+                         --set addonComponents.tracing.enabled=true \
+                         --set addonComponents.kiali.enabled=true \
+                         >resources/istio/base/istio-demo-profile.yaml 
     # apply new crds to k8s
     kubectl apply -f resources/istio/base/istio-crds.yaml
 

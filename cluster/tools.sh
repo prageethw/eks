@@ -49,9 +49,9 @@ helm install stable/external-dns --namespace external-dns --name external-dns --
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
         --set rbac.create=true \
-        --set txtPrefix=eks- \
+        --set txtPrefix=kops- \
         --set policy=sync \
-        --set txtOwnerId=eks \
+        --set txtOwnerId=kops \
         --set sources="{ingress,istio-gateway}" \
         --set istioIngressGateways={istio-system/istio-ingressgateway} \
         --set resources.limits.cpu="200m",resources.limits.memory="100Mi" 
@@ -139,6 +139,7 @@ helm install stable/grafana \
     --version 4.3.0 \
     --set persistence.type="statefulset" \
     --set persistence.size="5Gi" \
+    --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
     --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
     --values resources/grafana-values.yml
@@ -165,10 +166,11 @@ kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
 
 # install flagger
 helm upgrade -i flagger flagger-stable/flagger \
-    --version 0.23.0 \
+    --version 1.0.0 \
     --namespace=metrics \
     --set crd.create=true \
-    --set meshProvider=istio
+    --set meshProvider=istio \
+    --set metricsServer=http://prometheus.istio-system:9090
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
 kubectl apply -f resources/flagger-pdb.yaml
