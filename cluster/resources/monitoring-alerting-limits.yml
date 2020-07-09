@@ -118,7 +118,7 @@ serverFiles:
           summary: There\'s not enough allocatable memory
           description: More than 80% of allocatable memory is requested
       - alert: Too-Much-Free-Memory-In-Nodes
-        expr:  (1 - sum(node_memory_MemAvailable_bytes) by (instance) / sum(node_memory_MemTotal_bytes) by (instance)) < 0.8
+        expr:  (1 - sum(node_memory_MemAvailable_bytes) by (instance) / sum(node_memory_MemTotal_bytes) by (instance)) < 0.6
         for: 10m
         labels:
           severity: notify
@@ -126,7 +126,7 @@ serverFiles:
           summary: Too much unused memory
           description: Less than 80% of memory is used on at least one node
       - alert: Too-Much-Free-CPU-In-Nodes
-        expr: (sum(rate(node_cpu_seconds_total{mode!="idle", mode!="iowait", mode!~"^(?:guest.*)$"}[5m])) by (instance) / count(node_cpu_seconds_total{mode="system"}) by (instance)) < 0.8
+        expr: (sum(rate(node_cpu_seconds_total{mode!="idle", mode!="iowait", mode!~"^(?:guest.*)$"}[5m])) by (instance) / count(node_cpu_seconds_total{mode="system"}) by (instance)) < 0.6
         for: 10m
         labels:
           severity: notify
