@@ -21,7 +21,7 @@ helm repo update
 helm install stable/cluster-autoscaler \
     --name aws-cluster-autoscaler \
     --namespace aws-cluster-autoscaler \
-    --version 6.2.0 \
+    --version 7.0.0 \
     --set autoDiscovery.clusterName=$NAME \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
@@ -34,8 +34,10 @@ helm install stable/cluster-autoscaler \
     --set extraArgs.scale-down-unready-time="10m0s" \
     --set extraArgs.scale-down-utilization-threshold=0.6 \
     --set extraArgs.scan-interval="20s" \
-    --set extraArgs.skip-nodes-with-system-pods=0 \
-    --set extraArgs.skip-nodes-with-local-storage=0 \
+    --set extraArgs.balance-similar-node-groups="true" \
+    --set extraArgs.skip-nodes-with-system-pods="false" \
+    --set extraArgs.skip-nodes-with-local-storage="false" \
+    --set extraArgs.expander="least-waste" \
     --set replicaCount=2 \
     --set podDisruptionBudget="minAvailable: 1" \
     --set resources.limits.cpu="200m",resources.limits.memory="100Mi"

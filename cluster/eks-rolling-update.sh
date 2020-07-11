@@ -27,7 +27,7 @@ else
     # update eks cluster
         echo "New version is available..."
 set -x
-        eksctl update cluster --name=$NAME #--approve
+        eksctl update cluster --name=$NAME --approve
 
     #----------ng1
         eksctl create nodegroup \
@@ -69,9 +69,9 @@ set -x
         --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
         # --managed
     # delete old NGs
-        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true
-        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true
-        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true
+        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true --delete-local-data=true
+        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true --delete-local-data=true
+        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true --delete-local-data=true
     # wait 30 seconds to allow draining.
         echo "Waiting 120 seconds to allow draining..."
         set +x
