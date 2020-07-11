@@ -31,5 +31,5 @@ when you use helm make sure you provide --tiller-namespace as part of helm comma
 ex:
 
 ```bash
-helm upgrade -i     go-demo-3 helm/app     --namespace prod    --set image.tag=1.0     --set ingress.host=$APP_DOMAIN  --tiller-namespace=dev
+helm upgrade -i     go-demo-3 helm/app     --namespace prod    --set image.tag=1.0     --set ingress.host=$APP_DOMAIN  --tiller-namespace=prod
 ```
