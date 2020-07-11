@@ -26,9 +26,6 @@ helm install stable/cluster-autoscaler \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
     --set rbac.create=true \
-    --set autoscalingGroupsnamePrefix[0].maxSize=10 \
-    --set autoscalingGroupsnamePrefix[0].minSize=2 \
-    --set autoscalingGroupsnamePrefix[0].name=$ASG_NAME \
     --set extraArgs.scale-down-delay-after-add="5m0s" \
     --set extraArgs.scale-down-unneeded-time="5m0s" \
     --set extraArgs.scale-down-unready-time="10m0s" \
