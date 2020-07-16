@@ -12045,7 +12045,7 @@ data:
     deployment:
       accessible_namespaces: ['**']
     login_token:
-      signing_key: "4HUNpWzXV5"
+      signing_key: "mYd8DYCmS7"
     server:
       port: 20001
       web_root: /kiali
