@@ -21,49 +21,50 @@ helm repo update
 helm install stable/cluster-autoscaler \
     --name aws-cluster-autoscaler \
     --namespace aws-cluster-autoscaler \
-    --version 7.0.0 \
+    --version 6.2.0 \
     --set autoDiscovery.clusterName=$NAME \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
     --set rbac.create=true \
+    --set autoscalingGroupsnamePrefix[0].maxSize=10 \
+    --set autoscalingGroupsnamePrefix[0].minSize=2 \
+    --set autoscalingGroupsnamePrefix[0].name=$ASG_NAME \
     --set extraArgs.scale-down-delay-after-add="5m0s" \
     --set extraArgs.scale-down-unneeded-time="5m0s" \
     --set extraArgs.scale-down-unready-time="10m0s" \
     --set extraArgs.scale-down-utilization-threshold=0.6 \
     --set extraArgs.scan-interval="20s" \
-    --set extraArgs.balance-similar-node-groups="true" \
-    --set extraArgs.skip-nodes-with-system-pods="false" \
-    --set extraArgs.skip-nodes-with-local-storage="false" \
-    --set extraArgs.expander="least-waste" \
+    --set extraArgs.skip-nodes-with-system-pods=0 \
+    --set extraArgs.skip-nodes-with-local-storage=0 \
     --set replicaCount=2 \
     --set podDisruptionBudget="minAvailable: 1" \
-    --set resources.limits.cpu="100m",resources.limits.memory="200Mi"
+    --set resources.limits.cpu="200m",resources.limits.memory="100Mi"
 kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
 # install external-dns statful service no replicas supported atm
 # if you enable istio as below you need to intall istio-ingressgateway crds to make it work else an error thrown.
-helm install bitnami/external-dns --namespace external-dns --name external-dns --version=3.2.3 \
+helm install stable/external-dns --namespace external-dns --name external-dns --version=2.10.1 \
         --set aws.credentials.secretKey=$AWS_SECRET_ACCESS_KEY \
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
         --set rbac.create=true \
-        --set txtPrefix=eks- \
+        --set txtPrefix=kops- \
         --set policy=sync \
-        --set txtOwnerId=eks \
+        --set txtOwnerId=kops \
         --set sources="{ingress,istio-gateway}" \
-        --set resources.limits.cpu="100m",resources.limits.memory="200Mi"
+        --set istioIngressGateways={istio-system/istio-ingressgateway} \
+        --set resources.limits.cpu="200m",resources.limits.memory="100Mi" 
 kubectl -n external-dns rollout status deployment external-dns
 kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
 
 # install dashboard  for k8s cluster needs to run in kube-system
-helm install kubernetes-dashboard/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=2.2.0 \
+helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=1.10.1 \
                      --set ingress.enabled=true \
                      --set ingress.hosts[0]=$DASHBOARD_ADDR \
                      --set service.externalPort=8080 \
                      --set service.internalPort=8080 \
-                     --set resources.limits.cpu="200m",alertmanager.resources.limits.memory="100Mi" \
                      --set enableInsecureLogin=true \
                      --set replicaCount=2
 kubectl -n kube-system rollout status deployment kubernetes-dashboard
@@ -72,11 +73,11 @@ kubectl apply -f resources/kube-dashboard-pdb.yaml
 # install metrics server runs on all nodes
 helm install stable/metrics-server \
     --name metrics-server \
-    --version 2.11.1 \
+    --version 2.9.0 \
     --set replicas=2 \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
-    --set resources.limits.cpu="50m",resources.limits.memory="100Mi"
+    --set resources.limits.cpu="100m",resources.limits.memory="50Mi"
 # --kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
 kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
@@ -91,19 +92,17 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
-    --version 11.7.0 \
+    --version 11.0.2 \
     --set server.ingress.hosts={$PROM_ADDR} \
     --set alertmanager.ingress.hosts={$AM_ADDR} \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-type"=basic \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-secret"=sysops \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-realm"="Authentication Required - ok" \
     --set server.statefulSet.enabled="true" \
-    --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
-    --set server.resources.requests.cpu="500m",server.resources.requests.memory="1Gi" \
+    --set server.resources.limits.cpu="500m",server.resources.limits.memory="2Gi" \
+    --set server.resources.requests.cpu="250m",server.resources.requests.memory="1Gi" \
     --set alertmanager.resources.limits.cpu="500m",alertmanager.resources.limits.memory="1Gi" \
     --set alertmanager.resources.requests.cpu="250m",alertmanager.resources.requests.memory="0.5Gi" \
-    --set nodeExporter.resources.limits.cpu="200m",alertmanager.resources.limits.memory="0.6Gi" \
-    --set nodeExporter.resources.requests.cpu="100m",alertmanager.resources.requests.memory="0.5Gi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
 kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
@@ -137,11 +136,12 @@ kubectl apply -f resources/prometheus-pdb.yaml
 helm install stable/grafana \
     --name grafana \
     --namespace metrics \
-    --version 5.3.5 \
+    --version 4.3.0 \
     --set persistence.type="statefulset" \
     --set persistence.size="5Gi" \
+    --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
-    --set server.resources.limits.cpu="200m",server.resources.limits.memory="1000Mi" \
+    --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
     --values resources/grafana-values.yml
 kubectl -n metrics rollout status statefulset grafana
 kubectl  apply -f resources/grafana-pdb.yaml
@@ -159,17 +159,18 @@ helm install \
     --set prometheus.url=http://prometheus.istio-system.svc:9090 \
     --set resources.limits.cpu="150m",resources.limits.memory="300Mi"\
     --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
-    --set image.tag=v0.1.5
+    --set image.tag=v0.1.0
 kubectl -n metrics rollout status deployment kube-metrics-adapter
 kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
 kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
 
 # install flagger
 helm upgrade -i flagger flagger-stable/flagger \
-    --version 0.23.0 \
+    --version 1.0.0 \
     --namespace=metrics \
     --set crd.create=true \
-    --set meshProvider=istio
+    --set meshProvider=istio \
+    --set metricsServer=http://prometheus.istio-system:9090
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
 kubectl apply -f resources/flagger-pdb.yaml

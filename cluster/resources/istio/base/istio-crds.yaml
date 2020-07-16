@@ -5294,4 +5294,4 @@ spec:
 
 # Telemetry component is disabled.
 
-# manifest generated with : client version: 1.6.5 control plane version: 1.6.5 data plane version: 1.6.5 (5 proxies)
+# manifest generated with : client version: 1.6.3 control plane version: 1.6.3 data plane version: 1.6.3 (5 proxies)
