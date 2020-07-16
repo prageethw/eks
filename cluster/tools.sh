@@ -29,7 +29,7 @@ helm install stable/cluster-autoscaler \
     --set extraArgs.scale-down-delay-after-add="5m0s" \
     --set extraArgs.scale-down-unneeded-time="5m0s" \
     --set extraArgs.scale-down-unready-time="10m0s" \
-    --set extraArgs.scale-down-utilization-threshold=0.75 \
+    --set extraArgs.scale-down-utilization-threshold=0.6 \
     --set extraArgs.scan-interval="20s" \
     --set extraArgs.balance-similar-node-groups="true" \
     --set extraArgs.skip-nodes-with-system-pods="false" \
