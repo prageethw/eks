@@ -12045,7 +12045,7 @@ data:
     deployment:
       accessible_namespaces: ['**']
     login_token:
-      signing_key: "5TCYpbuPdo"
+      signing_key: "KL5DX9AYGL"
     server:
       port: 20001
       web_root: /kiali
@@ -12668,7 +12668,7 @@ spec:
           value: cluster.local
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.6.3
+        image: docker.io/istio/proxyv2:1.6.5
         imagePullPolicy: Always
         name: istio-proxy
         ports:
@@ -18287,31 +18287,6 @@ spec:
 
 # Resources for EgressGateways component
 
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-  labels:
-    app: istio-egressgateway
-    istio: egressgateway
-    release: istio
-  name: istio-egressgateway
-  namespace: istio-system
-spec:
-  maxReplicas: 5
-  metrics:
-  - resource:
-      name: cpu
-      targetAverageUtilization: 80
-    type: Resource
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: istio-egressgateway
-
----
-
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18440,11 +18415,11 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.6.3
+        image: docker.io/istio/proxyv2:1.6.5
         name: istio-proxy
         ports:
-        - containerPort: 80
-        - containerPort: 443
+        - containerPort: 8080
+        - containerPort: 8443
         - containerPort: 15443
         - containerPort: 15090
           name: http-envoy-prom
@@ -18461,11 +18436,11 @@ spec:
           timeoutSeconds: 1
         resources:
           limits:
-            cpu: 2000m
-            memory: 1024Mi
-          requests:
             cpu: 100m
-            memory: 128Mi
+            memory: 300Mi
+          requests:
+            cpu: 10m
+            memory: 40Mi
         volumeMounts:
         - mountPath: /etc/istio/proxy
           name: istio-envoy
@@ -18545,27 +18520,31 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations: null
+  name: istio-egressgateway
+  namespace: istio-system
+  annotations:
   labels:
     app: istio-egressgateway
     istio: egressgateway
     release: istio
-  name: istio-egressgateway
-  namespace: istio-system
 spec:
-  ports:
-  - name: http2
-    port: 80
-  - name: https
-    port: 443
-  - name: tls
-    port: 15443
-    targetPort: 15443
+  type: ClusterIP
   selector:
     app: istio-egressgateway
     istio: egressgateway
-  type: ClusterIP
-
+  ports:
+    -
+      name: http2
+      port: 80
+      targetPort: 8080
+    -
+      name: https
+      port: 443
+      targetPort: 8443
+    -
+      name: tls
+      port: 15443
+      targetPort: 15443
 ---
 
 
@@ -18581,31 +18560,6 @@ metadata:
 ---
 
 # Resources for IngressGateways component
-
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-  labels:
-    app: istio-ingressgateway
-    istio: ingressgateway
-    release: istio
-  name: istio-ingressgateway
-  namespace: istio-system
-spec:
-  maxReplicas: 5
-  metrics:
-  - resource:
-      name: cpu
-      targetAverageUtilization: 80
-    type: Resource
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: istio-ingressgateway
-
----
-
 
 apiVersion: apps/v1
 kind: Deployment
@@ -18737,12 +18691,13 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.6.3
+        image: docker.io/istio/proxyv2:1.6.5
         name: istio-proxy
         ports:
-        - containerPort: 15021
+        - containerPort: 15020
         - containerPort: 8080
         - containerPort: 8443
+        - containerPort: 31400
         - containerPort: 15443
         - containerPort: 15011
         - containerPort: 15012
@@ -18763,11 +18718,11 @@ spec:
           timeoutSeconds: 1
         resources:
           limits:
-            cpu: 2000m
-            memory: 1024Mi
+            cpu: 200m
+            memory: 500Mi
           requests:
-            cpu: 100m
-            memory: 128Mi
+            cpu: 10m
+            memory: 40Mi
         volumeMounts:
         - mountPath: /etc/istio/proxy
           name: istio-envoy
@@ -18892,14 +18847,17 @@ metadata:
 spec:
   ports:
   - name: status-port
-    port: 15021
-    targetPort: 15021
+    port: 15020
+    targetPort: 15020
   - name: http2
     port: 80
     targetPort: 8080
   - name: https
     port: 443
     targetPort: 8443
+  - name: tcp
+    port: 31400
+    targetPort: 31400
   - name: tls
     port: 15443
     targetPort: 15443
@@ -18926,30 +18884,6 @@ metadata:
 
 # Resources for Pilot component
 
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: istiod
-  namespace: istio-system
-  labels:
-    app: istiod
-    release: istio
-    istio.io/rev: default
-spec:
-  maxReplicas: 5
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: istiod
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      targetAverageUtilization: 80
----
-
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -18966,7 +18900,7 @@ data:
 
   mesh: |-
     accessLogEncoding: TEXT
-    accessLogFile: ""
+    accessLogFile: /dev/stdout
     accessLogFormat: ""
     defaultConfig:
       concurrency: 2
@@ -18984,7 +18918,7 @@ data:
         zipkin:
           address: zipkin.istio-system:9411
     disableMixerHttpReports: true
-    disablePolicyChecks: true
+    disablePolicyChecks: false
     enablePrometheusMerge: false
     ingressClass: istio
     ingressControllerMode: STRICT
@@ -19009,6 +18943,7 @@ metadata:
   name: istiod
   namespace: istio-system
 spec:
+  replicas: 1
   selector:
     matchLabels:
       istio: pilot
@@ -19052,13 +18987,17 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        - name: GODEBUG
+          value: gctrace=1
         - name: SERVICE_ACCOUNT
           valueFrom:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.serviceAccountName
         - name: PILOT_TRACE_SAMPLING
-          value: "1"
+          value: "100"
+        - name: CONFIG_NAMESPACE
+          value: istio-config
         - name: PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_OUTBOUND
           value: "true"
         - name: PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_INBOUND
@@ -19073,7 +19012,7 @@ spec:
           value: Kubernetes
         - name: CENTRAL_ISTIOD
           value: "false"
-        image: docker.io/istio/pilot:1.6.3
+        image: docker.io/istio/pilot:1.6.5
         name: discovery
         ports:
         - containerPort: 8080
@@ -19089,8 +19028,8 @@ spec:
           timeoutSeconds: 5
         resources:
           requests:
-            cpu: 500m
-            memory: 2048Mi
+            cpu: 10m
+            memory: 100Mi
         securityContext:
           capabilities:
             drop:
@@ -19230,8 +19169,8 @@ data:
               "memory": "300Mi"
             },
             "requests": {
-              "cpu": "100m",
-              "memory": "128Mi"
+              "cpu": "10m",
+              "memory": "40Mi"
             }
           },
           "statusPort": 15020,
@@ -19259,7 +19198,7 @@ data:
         "sts": {
           "servicePort": 0
         },
-        "tag": "1.6.3",
+        "tag": "1.6.5",
         "telemetryNamespace": "istio-system",
         "tracer": {
           "datadog": {
@@ -19346,7 +19285,11 @@ data:
         - "-b"
         - "{{ annotation .ObjectMeta `traffic.sidecar.istio.io/includeInboundPorts` `*` }}"
         - "-d"
+        {{- if excludeInboundPort (annotation .ObjectMeta `status.sidecar.istio.io/port` .Values.global.proxy.statusPort) (annotation .ObjectMeta `traffic.sidecar.istio.io/excludeInboundPorts` .Values.global.proxy.excludeInboundPorts) }}
         - "15090,15021,{{ excludeInboundPort (annotation .ObjectMeta `status.sidecar.istio.io/port` .Values.global.proxy.statusPort) (annotation .ObjectMeta `traffic.sidecar.istio.io/excludeInboundPorts` .Values.global.proxy.excludeInboundPorts) }}"
+        {{- else }}
+        - "15090,15021"
+        {{- end }}
         {{ if or (isset .ObjectMeta.Annotations `traffic.sidecar.istio.io/excludeOutboundPorts`) (ne (valueOrDefault .Values.global.proxy.excludeOutboundPorts "") "") -}}
         - "-o"
         - "{{ annotation .ObjectMeta `traffic.sidecar.istio.io/excludeOutboundPorts` .Values.global.proxy.excludeOutboundPorts }}"
@@ -19827,10 +19770,6 @@ spec:
       targetPort: 15017
     - port: 15014
       name: http-monitoring # prometheus stats
-    - name: dns
-      port: 53
-      targetPort: 15053
-      protocol: UDP
     - name: dns-tls
       port: 853
       targetPort: 15053
@@ -20585,4 +20524,4 @@ spec:
 
 # Telemetry component is disabled.
 
-# manifest generated with : client version: 1.6.3 control plane version: 1.6.3 data plane version: 1.6.3 (5 proxies)
+# manifest generated with : client version: 1.6.5 control plane version: 1.6.5 data plane version: 1.6.5 (5 proxies), 1.6.3 (2 proxies)

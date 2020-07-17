@@ -74,11 +74,11 @@ kubectl apply -f resources/kube-dashboard-pdb.yaml
 # install metrics server runs on all nodes
 helm install stable/metrics-server \
     --name metrics-server \
-    --version 2.9.0 \
+    --version 2.11.1 \
     --set replicas=2 \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
-    --set resources.limits.cpu="100m",resources.limits.memory="50Mi"
+    --set resources.limits.cpu="50m",resources.limits.memory="100Mi"
 # --kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
 kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
