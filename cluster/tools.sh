@@ -151,15 +151,17 @@ kubectl  apply -f resources/grafana-pdb.yaml
 helm install \
     banzaicloud-stable/kube-metrics-adapter \
     --name kube-metrics-adapter \
-    --version 0.0.5 \
+    --version 0.1.3 \
     --namespace metrics \
+    --set enableCustomMetricsApi=true \
+    --set enableExternalMetricsApi=true \
     --set logLevel=1 \
     --set rbac.create=true \
     --set aws.enable=true \
     --set prometheus.url=http://prometheus.istio-system.svc:9090 \
     --set resources.limits.cpu="150m",resources.limits.memory="300Mi"\
     --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
-    --set image.tag=v0.1.0
+    --set image.tag=v0.1.0 # latest image have an issue upto 0.1.5
 kubectl -n metrics rollout status deployment kube-metrics-adapter
 kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
 kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
