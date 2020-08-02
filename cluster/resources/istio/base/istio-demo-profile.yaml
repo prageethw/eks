@@ -12045,7 +12045,7 @@ data:
     deployment:
       accessible_namespaces: ['**']
     login_token:
-      signing_key: "KL5DX9AYGL"
+      signing_key: "4OAWhB8JVQ"
     server:
       port: 20001
       web_root: /kiali
@@ -12668,7 +12668,7 @@ spec:
           value: cluster.local
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.6.5
+        image: docker.io/istio/proxyv2:1.6.7
         imagePullPolicy: Always
         name: istio-proxy
         ports:
@@ -18368,6 +18368,8 @@ spec:
           value: third-party-jwt
         - name: PILOT_CERT_PROVIDER
           value: istiod
+        - name: CA_ADDR
+          value: istiod.istio-system.svc:15012
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -18415,7 +18417,7 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.6.5
+        image: docker.io/istio/proxyv2:1.6.7
         name: istio-proxy
         ports:
         - containerPort: 8080
@@ -18691,10 +18693,10 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.6.5
+        image: docker.io/istio/proxyv2:1.6.7
         name: istio-proxy
         ports:
-        - containerPort: 15020
+        - containerPort: 15021
         - containerPort: 8080
         - containerPort: 8443
         - containerPort: 31400
@@ -18847,8 +18849,8 @@ metadata:
 spec:
   ports:
   - name: status-port
-    port: 15020
-    targetPort: 15020
+    port: 15021
+    targetPort: 15021
   - name: http2
     port: 80
     targetPort: 8080
@@ -18987,8 +18989,6 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-        - name: GODEBUG
-          value: gctrace=1
         - name: SERVICE_ACCOUNT
           valueFrom:
             fieldRef:
@@ -19012,7 +19012,7 @@ spec:
           value: Kubernetes
         - name: CENTRAL_ISTIOD
           value: "false"
-        image: docker.io/istio/pilot:1.6.5
+        image: docker.io/istio/pilot:1.6.7
         name: discovery
         ports:
         - containerPort: 8080
@@ -19198,7 +19198,7 @@ data:
         "sts": {
           "servicePort": 0
         },
-        "tag": "1.6.5",
+        "tag": "1.6.7",
         "telemetryNamespace": "istio-system",
         "tracer": {
           "datadog": {
@@ -20524,4 +20524,4 @@ spec:
 
 # Telemetry component is disabled.
 
-# manifest generated with : client version: 1.6.5 control plane version: 1.6.5 data plane version: 1.6.5 (5 proxies), 1.6.3 (2 proxies)
+# manifest generated with : client version: 1.6.7 control plane version: 1.6.7 data plane version: 1.6.7 (3 proxies)
