@@ -7,7 +7,7 @@ aws iam delete-role --role-name eks-test
 aws iam delete-role --role-name eks-ops
 aws iam delete-role --role-name eks-admin
 
-## DELETE policy
+## delete policy
 aws iam delete-group-policy --policy-name eks-dev --group-name eks-dev
 aws iam delete-group-policy --policy-name eks-test --group-name eks-test
 aws iam delete-group-policy --policy-name eks-ops --group-name eks-ops
@@ -139,7 +139,7 @@ aws kms disable-key --key-id $KMS_CMK_ARN
 aws kms schedule-key-deletion --key-id $KMS_CMK_ARN --pending-window-in-days 7
 aws kms delete-alias --alias-name $KMS_CMK_ALIAS
 
-#### delete kubectl config ###
+#### delete kubectl config and temp files ###
 
 rm -rf config
 rm -rf k8s*

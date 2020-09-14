@@ -63,15 +63,15 @@ set -x
         --node-type ${NODE_TYPE:-t2.small} \
         --nodes ${DESIRED_NODE_COUNT:-3} \
         --nodes-max ${NODE_COUNT:-5}  \
-        --nodes-min 0 \
+        --nodes-min ${MIN_NODE_COUNT:-3} \
         --asg-access \
         --external-dns-access \
         --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub}
         # --managed
     # delete old NGs
-        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true
-        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true
-        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true
+        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG1_NAME --ignore-daemonsets=true --delete-local-data=true
+        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG2_NAME --ignore-daemonsets=true --delete-local-data=true
+        kubectl drain -l alpha.eksctl.io/nodegroup-name=$NG3_NAME --ignore-daemonsets=true --delete-local-data=true
     # wait 30 seconds to allow draining.
         echo "Waiting 120 seconds to allow draining..."
         set +x

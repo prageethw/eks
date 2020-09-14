@@ -71,7 +71,7 @@ export KUBECONFIG=keys/kubecfg-eks
     --without-nodegroup \
     --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub} \
-    --version=1.14
+    --version=1.17
     # --tags "k8s.io/cluster-autoscaler/enabled=true" \
 ### add additional node groups to resolve volume bidning issues.NOTE: tags not supported still for nodegroups
 
@@ -234,6 +234,11 @@ done
 #### install helm if required ####
 
     if [[ ! -z "${USE_HELM}" ]]; then
+        helm repo add stable https://kubernetes-charts.storage.googleapis.com
+        helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+        helm repo add flagger-stable https://flagger.app
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
         kubectl create -f resources/tiller-rbac.yml --record --save-config
         helm init --service-account tiller
         helm init --service-account tiller-dev --tiller-namespace dev
