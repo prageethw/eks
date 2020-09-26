@@ -7758,7 +7758,7 @@ data:
         "sts": {
           "servicePort": 0
         },
-        "tag": "1.7.1",
+        "tag": "1.7.2",
         "telemetryNamespace": "istio-system",
         "tracer": {
           "datadog": {
@@ -8433,7 +8433,7 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.7.1
+        image: docker.io/istio/proxyv2:1.7.2
         name: istio-proxy
         ports:
         - containerPort: 8080
@@ -8662,7 +8662,7 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.7.1
+        image: docker.io/istio/proxyv2:1.7.2
         name: istio-proxy
         ports:
         - containerPort: 15021
@@ -8838,7 +8838,7 @@ spec:
           value: Kubernetes
         - name: CENTRAL_ISTIOD
           value: "false"
-        image: docker.io/istio/pilot:1.7.1
+        image: docker.io/istio/pilot:1.7.2
         name: discovery
         ports:
         - containerPort: 8080
@@ -9203,4 +9203,4 @@ spec:
     # This avoids default deployment picking the canary
     istio: pilot
 ---
-# manifest generated with : client version: 1.7.1 control plane version: 1.7.1 data plane version: 1.7.1 (4 proxies)
+# manifest generated with : client version: 1.7.2 control plane version: 1.7.2 data plane version: 1.7.2 (3 proxies)

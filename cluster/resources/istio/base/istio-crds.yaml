@@ -6962,4 +6962,4 @@ subjects:
     name: istiod-service-account
     namespace: istio-system
 ---
-# manifest generated with : client version: 1.7.1 control plane version: 1.7.1 data plane version: 1.7.1 (4 proxies)
+# manifest generated with : client version: 1.7.2 control plane version: 1.7.2 data plane version: 1.7.2 (4 proxies)

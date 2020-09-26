@@ -186,46 +186,11 @@ export KUBECONFIG=keys/kubecfg-eks
     | jq -r \
     ".Vpcs[0].VpcId")
 
-
-
-
-# # note : below commented out as eksctl provides abilty of tagging and enabeling autoscaling using flags
-    # export IAM_ROLE=$(aws iam list-roles \
-    # | jq -r ".Roles[] \
-    # | select(.RoleName \
-    # | startswith(\"eksctl-$NAME-nodeg\")) \
-    # .RoleName")
-#  ## patch iam role to interact with AWS ASG 
-#     aws iam put-role-policy \
-#     --role-name $IAM_ROLE \
-#     --policy-name nodes.$NAME-AutoScaling \
-#     --policy-document file://resources/eks-autoscaling-policy.json
-# #############################################
-#     #tag instances so kubernetes can figure it out to be safe
-#     for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
-#     do
-#        aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true Key=kubernetes.io/cluster/$NAME,Value=true
-#     done
-#     #tag ASG group incase to be safe
-#     aws autoscaling \
-#     create-or-update-tags \
-#     --tags \
-#     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
-#     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true
-  
 # ###########################################
 # enabeling multi nodegroup clusters
 ASG_NAMES=""
 for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | select(.AutoScalingGroupName | startswith(\"eksctl-$NAME-nodegroup\")).AutoScalingGroupName");
 do
-#    for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
-#    do
-#      aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true Key=kubernetes.io/cluster/$NAME,Value=true
-#    done
-#    aws autoscaling create-or-update-tags \
-#     --tags \
-#     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
-#     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true
     ASG_NAMES=$ASG_NAME,$ASG_NAMES
 done
     export ASG_NAMES=${ASG_NAMES%?}
@@ -239,26 +204,11 @@ done
         helm repo add flagger-stable https://flagger.app
         helm repo add bitnami https://charts.bitnami.com/bitnami
         helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-        kubectl create -f resources/tiller-rbac.yml --record --save-config
-        helm init --service-account tiller
-        helm init --service-account tiller-dev --tiller-namespace dev
-        helm init --service-account tiller-test --tiller-namespace test 
-        helm init --service-account tiller-ops --tiller-namespace ops
-        #delete service and only allow CLI helm comms , security patch as suggested here https://engineering.bitnami.com/articles/helm-security.html
-        kubectl -n kube-system delete service tiller-deploy
-        kubectl -n dev delete service tiller-deploy
-        kubectl -n test delete service tiller-deploy
-        kubectl -n ops delete service tiller-deploy
-        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n kube-system rollout status deploy tiller-deploy
-        kubectl -n dev rollout status deploy tiller-deploy
-        kubectl -n test rollout status deploy tiller-deploy
-        kubectl -n ops rollout status deploy tiller-deploy
-        kubectl apply -f resources/tiller-hpa.yaml
-        kubectl apply -f resources/tiller-pdb.yaml
+        helm repo add kiali https://kiali.org/helm-charts
+        helm repo add jaeger https://jaegertracing.github.io/helm-charts
+        helm repo add prometheus https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
         
     fi
 
@@ -285,12 +235,12 @@ done
 ################################################################
 
 #######install tools ###########################################
-
-     echo "installing required tools"
-     echo ""
-     sh tools.sh
-     echo ""
-
+   if [[ ! -z "${USE_HELM}" ]]; then
+        echo "installing required tools"
+        echo ""
+        sh tools.sh
+        echo ""
+   fi
 ################################################################
 
     if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
