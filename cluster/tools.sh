@@ -73,6 +73,7 @@ helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --na
                      --set replicaCount=2
 kubectl -n kube-system rollout status deployment kubernetes-dashboard
 kubectl apply -f resources/kube-dashboard-pdb.yaml
+
 # install metrics server runs on all nodes
 kubectl create namespace metrics
 helm install metrics-server stable/metrics-server \
@@ -101,24 +102,27 @@ helm install prometheus prometheus/prometheus \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-secret"=sysops \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-realm"="Authentication Required - ok" \
     --set server.statefulSet.enabled="true" \
+    --set server.global.scrape_interval="15s" \
     --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
     --set server.resources.requests.cpu="500m",server.resources.requests.memory="1Gi" \
     --set alertmanager.resources.limits.cpu="500m",alertmanager.resources.limits.memory="1Gi" \
-    --set alertmanager.resources.requests.cpu="250m",alertmanager.resources.requests.memory="0.5Gi" \
-    --set nodeExporter.resources.limits.cpu="200m",alertmanager.resources.limits.memory="0.5Gi" \
+    --set alertmanager.resources.requests.cpu="200m",alertmanager.resources.requests.memory="0.4Gi" \
+    --set nodeExporter.resources.limits.cpu="200m",nodeExporter.resources.limits.memory="0.7Gi" \
+    --set pushgateway.resources.limits.cpu="100m",pushgateway.resources.limits.memory="0.2Gi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
 kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
 kubectl -n metrics rollout status statefulset prometheus-alertmanager
 kubectl -n metrics rollout status statefulset prometheus-server
 kubectl apply -f resources/prometheus-pdb.yaml
+
 # validate basic auth with
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
 # install prom adaptor for prom integration with k8s metrics server, note pointing to istio prom.
 # helm prometheus-adapter install \
-#     stable/prometheus-adapter \
-#     --version 2.0.0 \
+#     prometheus/prometheus-adapter \
+#     --version 2.7.0 \
 #     --namespace metrics \
 #     --set logLevel=4 \
 #     --set rbac.create=true \
@@ -141,12 +145,13 @@ helm install grafana grafana/grafana \
     --set persistence.size="5Gi" \
     --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
-    --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
+    --set server.resources.limits.cpu="200m",server.resources.limits.memory="700Mi" \
     --values resources/grafana-values.yml
 kubectl -n metrics rollout status statefulset grafana
 kubectl  apply -f resources/grafana-pdb.yaml
+
 # kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
-# Note: this chart is not from official repo
+# Note: this chart is not from official repo 
 helm install kube-metrics-adapter \
     banzaicloud-stable/kube-metrics-adapter \
     --version 0.1.3 \
@@ -168,7 +173,7 @@ kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
 # install flagger
 helm upgrade -i flagger flagger-stable/flagger \
     --version 1.1.0 \
-    --namespace=metrics \
+    --namespace metrics \
     --set meshProvider=istio \
     --set resources.limits.cpu=100m \
     --set resources.limits.memory=250Mi \
@@ -176,3 +181,42 @@ helm upgrade -i flagger flagger-stable/flagger \
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
 kubectl apply -f resources/flagger-pdb.yaml
+
+# intall kiali-operator
+helm upgrade -i kiali-operator kiali/kiali-operator \
+    --version 1.24.0 \
+    --namespace istio-system \
+    --set debug.enabled=true \
+    --set cr.create=false \
+    --set watchNamespace=istio-system \
+    --set resources.limits.cpu=100m \
+    --set resources.limits.memory=250Mi 
+kubectl apply -f resources/kiali-cr.yaml -n istio-system #install kiali
+
+#install jaeger via operator,not prod ready if you want prod ready use helm as below with ES saas.
+helm upgrade -i jaeger-operator jaeger/jaeger-operator \
+    --namespace istio-system \
+    --set resources.limits.cpu=100m \
+    --set resources.limits.memory=250Mi 
+kubectl apply -f resources/jaeger-cr.yaml -n istio-system #install jaeger
+
+# # install jaeger refer doc to point external database
+# helm upgrade -i jaeger jaeger/jaeger \
+#     --version 0.37.2 \
+#     --namespace istio-system \
+#     --set schema.resources.limits.cpu=100m \
+#     --set schema.resources.limits.memory=200Mi \
+#     --set agent.resources.limits.cpu=100m \
+#     --set agent.resources.limits.memory=200Mi \
+#     --set collector.resources.limits.cpu=500m \
+#     --set collector.resources.limits.memory=512Mi \
+#     --set collector.service.zipkin.port=9411 \
+#     --set query.resources.limits.cpu=500m \
+#     --set query.resources.limits.memory=512Mi \
+#     --set cassandra.config.max_heap_size=1024M \
+#     --set cassandra.config.heap_new_size=256M \
+#     --set cassandra.resources.requests.memory=2048Mi \
+#     --set cassandra.resources.requests.cpu=0.4 \
+#     --set cassandra.resources.limits.memory=2048Mi \
+#     --set cassandra.resources.limits.cpu=0.4 \
+#     --set schema.extraEnv[0].name=MODE,schema.extraEnv[0].value=prod #prod will run 3 cassendra instances

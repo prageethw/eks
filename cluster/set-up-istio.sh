@@ -31,11 +31,11 @@ kubectl apply -f istio-install-demo-profile.yaml
 kubectl -n istio-system rollout status  deployments istiod
 kubectl -n istio-system rollout status  deployments istio-ingressgateway
 # deploy default add-ons
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/prometheus.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/grafana.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/jaeger.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml #incase fails
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/prometheus.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/grafana.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/jaeger.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml #incase fails
 # enable basic auth for add-ons (same file used to enable for nginx basic auth)
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
@@ -80,7 +80,7 @@ cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFAN
                                                                    s@MESH_KIALI_ADDR@$MESH_KIALI_ADDR@g; \
                                                                    s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
                                                                    tee istio-add-ons-using-nginx-ingress.temp.yaml
-kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
+# kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
 
 if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
 # add version details to the file

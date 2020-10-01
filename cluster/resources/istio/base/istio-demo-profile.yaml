@@ -7634,7 +7634,7 @@ data:
         DNS_AGENT: ""
       tracing:
         zipkin:
-          address: zipkin.istio-system:9411
+          address: jaeger-collector.istio-system:9411
     disableMixerHttpReports: true
     enablePrometheusMerge: true
     rootNamespace: istio-system
@@ -7775,7 +7775,7 @@ data:
             "maxNumberOfMessageEvents": 200
           },
           "zipkin": {
-            "address": ""
+            "address": "jaeger-collector.istio-system:9411"
           }
         },
         "trustDomain": "cluster.local",
@@ -9203,4 +9203,4 @@ spec:
     # This avoids default deployment picking the canary
     istio: pilot
 ---
-# manifest generated with : client version: 1.7.2 control plane version: 1.7.2 data plane version: 1.7.2 (3 proxies)
+# manifest generated with : client version: 1.7.2 control plane version: 1.7.2 data plane version: 1.7.2 (2 proxies)

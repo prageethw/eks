@@ -55,3 +55,6 @@ spec:
           requests:
             cpu: 10m
             memory: 10Mi
+      tracer:
+        zipkin:
+          address: jaeger-collector.istio-system:9411
