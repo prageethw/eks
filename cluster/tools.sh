@@ -41,7 +41,8 @@ helm install aws-cluster-autoscaler stable/cluster-autoscaler \
     --set extraArgs.expander="least-waste" \
     --set replicaCount=2 \
     --set podDisruptionBudget="minAvailable: 1" \
-    --set resources.limits.cpu="100m",resources.limits.memory="200Mi"
+    --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
+    --set resources.requests.cpu="50m",resources.requests.memory="50Mi"
 kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
@@ -57,7 +58,8 @@ helm install external-dns  bitnami/external-dns --namespace external-dns --versi
         --set policy=sync \
         --set txtOwnerId=kops \
         --set sources="{ingress,istio-gateway}" \
-        --set resources.limits.cpu="100m",resources.limits.memory="200Mi"
+        --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
+        --set resources.requests.cpu="50m",resources.requests.memory="50Mi"
 kubectl -n external-dns rollout status deployment external-dns
 kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
@@ -81,7 +83,8 @@ helm install metrics-server stable/metrics-server \
     --set replicas=2 \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
-    --set resources.limits.cpu="50m",resources.limits.memory="100Mi"
+    --set resources.limits.cpu="50m",resources.limits.memory="100Mi" \
+    --set resources.requests.cpu="20m",resources.requests.memory="50Mi"
 # --kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
 kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
@@ -104,11 +107,15 @@ helm install prometheus prometheus/prometheus \
     --set server.statefulSet.enabled="true" \
     --set server.global.scrape_interval="15s" \
     --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
-    --set server.resources.requests.cpu="500m",server.resources.requests.memory="1Gi" \
-    --set alertmanager.resources.limits.cpu="500m",alertmanager.resources.limits.memory="1Gi" \
-    --set alertmanager.resources.requests.cpu="200m",alertmanager.resources.requests.memory="0.4Gi" \
-    --set nodeExporter.resources.limits.cpu="200m",nodeExporter.resources.limits.memory="0.7Gi" \
-    --set pushgateway.resources.limits.cpu="100m",pushgateway.resources.limits.memory="0.2Gi" \
+    --set server.resources.requests.cpu="500m",server.resources.requests.memory="1.5Gi" \
+    --set alertmanager.resources.limits.cpu="100m",alertmanager.resources.limits.memory="100Mi" \
+    --set alertmanager.resources.requests.cpu="50m",alertmanager.resources.requests.memory="50Mi" \
+    --set nodeExporter.resources.limits.cpu="100m",nodeExporter.resources.limits.memory="100Mi" \
+    --set nodeExporter.resources.requests.cpu="30m",nodeExporter.resources.requests.memory="30Mi" \
+    --set pushgateway.resources.limits.cpu="50m",pushgateway.resources.limits.memory="50Mi" \
+    --set pushgateway.resources.requests.cpu="25m",pushgateway.resources.requests.memory="25Mi" \
+    --set kube-state-metrics.resources.requests.cpu="50m",kube-state-metrics.resources.requests.memory="50Mi" \
+    --set kube-state-metrics.resources.limits.cpu="100m",kube-state-metrics.resources.limits.memory="100Mi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
 kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
@@ -145,7 +152,8 @@ helm install grafana grafana/grafana \
     --set persistence.size="5Gi" \
     --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
-    --set server.resources.limits.cpu="200m",server.resources.limits.memory="700Mi" \
+    --set resources.limits.cpu="100m",resources.limits.memory="150Mi" \
+    --set resources.requests.cpu="50m",resources.requests.memory="60Mi" \
     --values resources/grafana-values.yml
 kubectl -n metrics rollout status statefulset grafana
 kubectl  apply -f resources/grafana-pdb.yaml
@@ -162,7 +170,8 @@ helm install kube-metrics-adapter \
     --set rbac.create=true \
     --set aws.enable=true \
     --set prometheus.url=http://prometheus-server.metrics:80 \
-    --set resources.limits.cpu="150m",resources.limits.memory="300Mi"\
+    --set resources.limits.cpu="100m",resources.limits.memory="200Mi"\
+    --set resources.requests.cpu="50m",resources.requests.memory="100Mi"\
     --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
     --set image.tag=v0.1.5
 kubectl apply -f resources/kube-metrics-rbac-fix.yaml # this can be removed once fixes are merged.
@@ -176,7 +185,9 @@ helm upgrade -i flagger flagger-stable/flagger \
     --namespace metrics \
     --set meshProvider=istio \
     --set resources.limits.cpu=100m \
-    --set resources.limits.memory=250Mi \
+    --set resources.limits.memory=50Mi \
+    --set resources.requests.cpu=50m \
+    --set resources.requests.memory=20Mi \
     --set metricsServer=http://prometheus-server.metrics:80
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
@@ -190,14 +201,18 @@ helm upgrade -i kiali-operator kiali/kiali-operator \
     --set cr.create=false \
     --set watchNamespace=istio-system \
     --set resources.limits.cpu=100m \
-    --set resources.limits.memory=250Mi 
+    --set resources.limits.memory=200Mi \
+    --set resources.requests.cpu=100m \
+    --set resources.requests.memory=100Mi 
 kubectl apply -f resources/kiali-cr.yaml -n istio-system #install kiali
 
 #install jaeger via operator,not prod ready if you want prod ready use helm as below with ES saas.
 helm upgrade -i jaeger-operator jaeger/jaeger-operator \
     --namespace istio-system \
     --set resources.limits.cpu=100m \
-    --set resources.limits.memory=250Mi 
+    --set resources.limits.memory=100Mi \
+    --set resources.requests.cpu=50m \
+    --set resources.requests.memory=50Mi
 kubectl apply -f resources/jaeger-cr.yaml -n istio-system #install jaeger
 
 # # install jaeger refer doc to point external database

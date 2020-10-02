@@ -12,7 +12,7 @@ spec:
             memory: 256Mi #changed
           requests:
             cpu: 100m
-            memory: 128Mi
+            memory: 60Mi
       name: istio-egressgateway
     ingressGateways:
     - enabled: true
@@ -20,11 +20,11 @@ spec:
         env:
         resources:
           limits:
-            cpu: 500m #changed
-            memory: 512Mi #changed
+            cpu: 300m #changed
+            memory: 200Mi #changed
           requests:
             cpu: 100m
-            memory: 128Mi
+            memory: 60Mi
       name: istio-ingressgateway
     pilot:
       enabled: true
