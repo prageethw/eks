@@ -2,7 +2,7 @@
 helm repo update
 # install ingress
 # kubectl create namespace nginx-ingress
-# helm install ingress-nginx ingress-nginx/ingress-nginx --namespace nginx-ingress \
+# helm upgrade -i ingress-nginx ingress-nginx/ingress-nginx --namespace nginx-ingress \
 #             --version 3.3.0 \
 #             --set controller.publishService.enabled=true \
 #             --set controller.service.targetPorts.https=http \
@@ -18,11 +18,11 @@ helm repo update
 #             --set-string controller.config.hsts=true
 # kubectl -n nginx-ingress  rollout status deployment nginx-ingress-controller
 
-# install auto nodes scaler
+# install cluster auto scaler
 kubectl create namespace aws-cluster-autoscaler
-helm install aws-cluster-autoscaler stable/cluster-autoscaler \
+helm upgrade -i aws-cluster-autoscaler autoscaler/cluster-autoscaler-chart \
     --namespace aws-cluster-autoscaler \
-    --version 7.0.0 \
+    --version 1.0.3 \
     --set autoDiscovery.clusterName=$NAME \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
@@ -40,16 +40,16 @@ helm install aws-cluster-autoscaler stable/cluster-autoscaler \
     --set extraArgs.skip-nodes-with-local-storage="false" \
     --set extraArgs.expander="least-waste" \
     --set replicaCount=2 \
-    --set podDisruptionBudget="minAvailable: 1" \
-    --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
-    --set resources.requests.cpu="50m",resources.requests.memory="50Mi"
-kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler
+    --set podDisruptionBudget.maxUnavailable=1 \
+    --set resources.limits.cpu="100m",resources.limits.memory="400Mi" \
+    --set resources.requests.cpu="50m",resources.requests.memory="60Mi"
+kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler-aws-cluster-autoscaler-chart
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
 # install external-dns statful service no replicas supported atm
 # if you enable istio as below you need to intall istio-ingressgateway crds to make it work else an error thrown.
 kubectl create namespace external-dns
-helm install external-dns  bitnami/external-dns --namespace external-dns --version=3.2.3 \
+helm upgrade -i external-dns  bitnami/external-dns --namespace external-dns --version=3.2.3 \
         --set aws.credentials.secretKey=$AWS_SECRET_ACCESS_KEY \
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
@@ -58,19 +58,20 @@ helm install external-dns  bitnami/external-dns --namespace external-dns --versi
         --set policy=sync \
         --set txtOwnerId=kops \
         --set sources="{ingress,istio-gateway}" \
-        --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
-        --set resources.requests.cpu="50m",resources.requests.memory="50Mi"
+        --set resources.limits.cpu="50m",resources.limits.memory="100Mi" \
+        --set resources.requests.cpu="25m",resources.requests.memory="50Mi"
 kubectl -n external-dns rollout status deployment external-dns
 kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
 
 # install dashboard  for k8s cluster needs to run in kube-system
-helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --namespace kube-system --version=2.2.0 \
+helm upgrade -i kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --namespace kube-system --version=2.2.0 \
                      --set ingress.enabled=true \
                      --set ingress.hosts[0]=$DASHBOARD_ADDR \
                      --set service.externalPort=8080 \
                      --set service.internalPort=8080 \
-                     --set resources.limits.cpu="200m",alertmanager.resources.limits.memory="100Mi" \
+                     --set resources.limits.cpu="100m",alertmanager.resources.limits.memory="100Mi" \
+                     --set resources.requests.cpu="50m",alertmanager.resources.requests.memory="100Mi" \
                      --set enableInsecureLogin=true \
                      --set replicaCount=2
 kubectl -n kube-system rollout status deployment kubernetes-dashboard
@@ -78,7 +79,7 @@ kubectl apply -f resources/kube-dashboard-pdb.yaml
 
 # install metrics server runs on all nodes
 kubectl create namespace metrics
-helm install metrics-server stable/metrics-server \
+helm upgrade -i metrics-server stable/metrics-server \
     --version 2.11.2 \
     --set replicas=2 \
     --namespace metrics \
@@ -96,7 +97,7 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 
 # install monitoring and alerting tools
 # leave this as 1 replicas to make stats valid as much as it could.
-helm install prometheus prometheus/prometheus \
+helm upgrade -i prometheus prometheus/prometheus \
     --namespace metrics \
     --version 11.15.0 \
     --set server.ingress.hosts={$PROM_ADDR} \
@@ -106,16 +107,16 @@ helm install prometheus prometheus/prometheus \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-realm"="Authentication Required - ok" \
     --set server.statefulSet.enabled="true" \
     --set server.global.scrape_interval="15s" \
-    --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
-    --set server.resources.requests.cpu="500m",server.resources.requests.memory="1.5Gi" \
-    --set alertmanager.resources.limits.cpu="100m",alertmanager.resources.limits.memory="100Mi" \
-    --set alertmanager.resources.requests.cpu="50m",alertmanager.resources.requests.memory="50Mi" \
-    --set nodeExporter.resources.limits.cpu="100m",nodeExporter.resources.limits.memory="100Mi" \
-    --set nodeExporter.resources.requests.cpu="30m",nodeExporter.resources.requests.memory="30Mi" \
-    --set pushgateway.resources.limits.cpu="50m",pushgateway.resources.limits.memory="50Mi" \
-    --set pushgateway.resources.requests.cpu="25m",pushgateway.resources.requests.memory="25Mi" \
-    --set kube-state-metrics.resources.requests.cpu="50m",kube-state-metrics.resources.requests.memory="50Mi" \
-    --set kube-state-metrics.resources.limits.cpu="100m",kube-state-metrics.resources.limits.memory="100Mi" \
+    --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2.5Gi" \
+    --set server.resources.requests.cpu="500m",server.resources.requests.memory="1.8Gi" \
+    --set alertmanager.resources.limits.cpu="50m",alertmanager.resources.limits.memory="100Mi" \
+    --set alertmanager.resources.requests.cpu="25m",alertmanager.resources.requests.memory="50Mi" \
+    --set nodeExporter.resources.limits.cpu="50m",nodeExporter.resources.limits.memory="100Mi" \
+    --set nodeExporter.resources.requests.cpu="20m",nodeExporter.resources.requests.memory="30Mi" \
+    --set pushgateway.resources.limits.cpu="25m",pushgateway.resources.limits.memory="50Mi" \
+    --set pushgateway.resources.requests.cpu="10m",pushgateway.resources.requests.memory="25Mi" \
+    --set kube-state-metrics.resources.requests.cpu="25m",kube-state-metrics.resources.requests.memory="60Mi" \
+    --set kube-state-metrics.resources.limits.cpu="50m",kube-state-metrics.resources.limits.memory="150Mi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
 kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
@@ -127,7 +128,7 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
 # install prom adaptor for prom integration with k8s metrics server, note pointing to istio prom.
-# helm prometheus-adapter install \
+# helm upgrade -i prometheus-adapter \
 #     prometheus/prometheus-adapter \
 #     --version 2.7.0 \
 #     --namespace metrics \
@@ -145,7 +146,7 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # kubectl apply -f resources/prom-adapter-pdb.yaml
 
 # install grafana
-helm install grafana grafana/grafana \
+helm upgrade -i grafana grafana/grafana \
     --namespace metrics \
     --version 5.6.9 \
     --set persistence.type="statefulset" \
@@ -160,7 +161,7 @@ kubectl  apply -f resources/grafana-pdb.yaml
 
 # kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
 # Note: this chart is not from official repo 
-helm install kube-metrics-adapter \
+helm upgrade -i kube-metrics-adapter \
     banzaicloud-stable/kube-metrics-adapter \
     --version 0.1.3 \
     --namespace metrics \
@@ -170,8 +171,8 @@ helm install kube-metrics-adapter \
     --set rbac.create=true \
     --set aws.enable=true \
     --set prometheus.url=http://prometheus-server.metrics:80 \
-    --set resources.limits.cpu="100m",resources.limits.memory="200Mi"\
-    --set resources.requests.cpu="50m",resources.requests.memory="100Mi"\
+    --set resources.limits.cpu="50m",resources.limits.memory="150Mi"\
+    --set resources.requests.cpu="25m",resources.requests.memory="60Mi"\
     --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
     --set image.tag=v0.1.5
 kubectl apply -f resources/kube-metrics-rbac-fix.yaml # this can be removed once fixes are merged.
@@ -184,9 +185,9 @@ helm upgrade -i flagger flagger-stable/flagger \
     --version 1.1.0 \
     --namespace metrics \
     --set meshProvider=istio \
-    --set resources.limits.cpu=100m \
+    --set resources.limits.cpu=25m \
     --set resources.limits.memory=50Mi \
-    --set resources.requests.cpu=50m \
+    --set resources.requests.cpu=10m \
     --set resources.requests.memory=20Mi \
     --set metricsServer=http://prometheus-server.metrics:80
 kubectl -n metrics rollout status deployment flagger
@@ -202,16 +203,16 @@ helm upgrade -i kiali-operator kiali/kiali-operator \
     --set watchNamespace=istio-system \
     --set resources.limits.cpu=100m \
     --set resources.limits.memory=200Mi \
-    --set resources.requests.cpu=100m \
+    --set resources.requests.cpu=50m \
     --set resources.requests.memory=100Mi 
 kubectl apply -f resources/kiali-cr.yaml -n istio-system #install kiali
 
 #install jaeger via operator,not prod ready if you want prod ready use helm as below with ES saas.
 helm upgrade -i jaeger-operator jaeger/jaeger-operator \
     --namespace istio-system \
-    --set resources.limits.cpu=100m \
+    --set resources.limits.cpu=50m \
     --set resources.limits.memory=100Mi \
-    --set resources.requests.cpu=50m \
+    --set resources.requests.cpu=25m \
     --set resources.requests.memory=50Mi
 kubectl apply -f resources/jaeger-cr.yaml -n istio-system #install jaeger
 

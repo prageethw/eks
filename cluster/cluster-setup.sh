@@ -209,7 +209,7 @@ done
         helm repo add prometheus https://prometheus-community.github.io/helm-charts
         helm repo add grafana https://grafana.github.io/helm-charts
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-        
+        helm repo add autoscaler https://kubernetes.github.io/autoscaler
     fi
 
 ############################################
