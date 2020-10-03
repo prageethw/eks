@@ -75,16 +75,18 @@ kubectl label namespace prod \
 # EOF
 
 # create ingress for add-ons
-cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFANA_ADDR@$MESH_GRAFANA_ADDR@g; \
-                                                                   s@MESH_PROM_ADDR@$MESH_PROM_ADDR@g; \
-                                                                   s@MESH_KIALI_ADDR@$MESH_KIALI_ADDR@g; \
-                                                                   s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
-                                                                   tee istio-add-ons-using-nginx-ingress.temp.yaml
+# cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFANA_ADDR@$MESH_GRAFANA_ADDR@g; \
+#                                                                    s@MESH_PROM_ADDR@$MESH_PROM_ADDR@g; \
+#                                                                    s@MESH_KIALI_ADDR@$MESH_KIALI_ADDR@g; \
+#                                                                    s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
+#                                                                    tee istio-add-ons-using-nginx-ingress.temp.yaml
 # kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
 
 if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
-# add version details to the file
-echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
-# ammend with version details
-echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
+    # add version details to the file
+    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
+    # ammend with version details
+    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
 fi
+# import grafana dashboards
+sh istio-grafana-dashboard.sh
