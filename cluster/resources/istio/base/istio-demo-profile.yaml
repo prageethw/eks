@@ -8458,7 +8458,7 @@ spec:
             memory: 256Mi
           requests:
             cpu: 100m
-            memory: 60Mi
+            memory: 200Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -8684,11 +8684,11 @@ spec:
           timeoutSeconds: 1
         resources:
           limits:
-            cpu: 300m
-            memory: 200Mi
+            cpu: 200m
+            memory: 300Mi
           requests:
             cpu: 100m
-            memory: 60Mi
+            memory: 200Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
