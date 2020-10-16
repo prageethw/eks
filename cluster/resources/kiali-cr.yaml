@@ -14,10 +14,10 @@ spec:
    verbose_mode: "1"
    resources: 
       requests:
-        memory: "60Mi"
+        memory: "50Mi"
         cpu: "25m"
       limits:
-        memory: "120Mi"
+        memory: "100Mi"
         cpu: "50m"
    ingress_enabled: true
    override_ingress_yaml:

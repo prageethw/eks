@@ -115,8 +115,8 @@ helm upgrade -i prometheus prometheus/prometheus \
     --set nodeExporter.resources.requests.cpu="20m",nodeExporter.resources.requests.memory="30Mi" \
     --set pushgateway.resources.limits.cpu="25m",pushgateway.resources.limits.memory="50Mi" \
     --set pushgateway.resources.requests.cpu="10m",pushgateway.resources.requests.memory="25Mi" \
-    --set kube-state-metrics.resources.requests.cpu="25m",kube-state-metrics.resources.requests.memory="60Mi" \
-    --set kube-state-metrics.resources.limits.cpu="50m",kube-state-metrics.resources.limits.memory="150Mi" \
+    --set kube-state-metrics.resources.requests.cpu="25m",kube-state-metrics.resources.requests.memory="50Mi" \
+    --set kube-state-metrics.resources.limits.cpu="50m",kube-state-metrics.resources.limits.memory="100Mi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
 kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
@@ -186,9 +186,9 @@ helm upgrade -i flagger flagger-stable/flagger \
     --namespace metrics \
     --set meshProvider=istio \
     --set resources.limits.cpu=25m \
-    --set resources.limits.memory=50Mi \
+    --set resources.limits.memory=60Mi \
     --set resources.requests.cpu=10m \
-    --set resources.requests.memory=20Mi \
+    --set resources.requests.memory=40Mi \
     --set metricsServer=http://prometheus-server.metrics:80
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
