@@ -5551,7 +5551,8 @@ spec:
                       description: Retry policy for HTTP requests.
                       properties:
                         attempts:
-                          description: Number of retries for a given request.
+                          description: Number of retries to be allowed for a given
+                            request.
                           format: int32
                           type: integer
                         perTryTimeout:
@@ -6343,7 +6344,8 @@ spec:
                       description: Retry policy for HTTP requests.
                       properties:
                         attempts:
-                          description: Number of retries for a given request.
+                          description: Number of retries to be allowed for a given
+                            request.
                           format: int32
                           type: integer
                         perTryTimeout:
@@ -6962,4 +6964,4 @@ subjects:
     name: istiod-service-account
     namespace: istio-system
 ---
-# manifest generated with : client version: 1.7.3 control plane version: 1.7.3
+# manifest generated with : client version: 1.7.4 control plane version: 1.7.4 data plane version: 1.7.4 (3 proxies)
