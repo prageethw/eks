@@ -196,7 +196,7 @@ kubectl apply -f resources/flagger-pdb.yaml
 
 # intall kiali-operator
 helm upgrade -i kiali-operator kiali/kiali-operator \
-    --version 1.24.0 \
+    --version 1.27.0 \
     --namespace istio-system \
     --set debug.enabled=true \
     --set cr.create=false \
