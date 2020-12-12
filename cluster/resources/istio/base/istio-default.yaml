@@ -1,0 +1,60 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  components:
+    egressGateways:
+    - enabled: true
+      k8s:
+        env:
+        resources:
+          limits:
+            cpu: 200m #changed
+            memory: 256Mi #changed
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      name: istio-egressgateway
+    ingressGateways:
+    - enabled: true
+      k8s:
+        env:
+        resources:
+          limits:
+            cpu: 200m #changed
+            memory: 300Mi #changed
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      name: istio-ingressgateway
+    pilot:
+      enabled: true
+      k8s:
+        env:
+        resources:
+          limits:
+            cpu: 500m #changed
+            memory: 512Mi #changed
+          requests:
+            cpu: 100m
+            memory: 128Mi
+  values:
+    global:
+      proxy:
+        resources:
+          limits:
+            cpu: 200m #changed
+            memory: 256Mi #changed
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      proxy_init:
+        resources:
+          limits:
+            cpu: 200m #changed originaly was 2000m
+            memory: 256Mi #changed originaly was 1024Mi
+          requests:
+            cpu: 10m
+            memory: 10Mi
+      tracer:
+        zipkin:
+          address: jaeger-collector.istio-system:9411

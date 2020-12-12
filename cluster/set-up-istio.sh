@@ -5,17 +5,7 @@ if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
     istioctl manifest generate --set profile=minimal --set components.pilot.enabled=false >resources/istio/base/istio-crds.yaml
     # generate demo profile that gives everything we need in cluster pretty much 
     # --set values.global.jwtPolicy=first-party-jwt if pods hangs due to jwt issues
-    istioctl manifest generate --set profile=demo \
-                            --set values.kiali.createDemoSecret=false \
-                            --set values.global.proxy.resources.limits.memory="300Mi" \
-                            --set values.global.proxy.resources.limits.cpu="100m" \
-                            --set values.gateways.istio-ingressgateway.resources.limits.memory="500Mi" \
-                            --set values.gateways.istio-ingressgateway.resources.limits.cpu="200m" \
-                            --set values.gateways.istio-egressgateway.resources.limits.memory="300Mi" \
-                            --set values.gateways.istio-egressgateway.resources.limits.cpu="100m" \
-                            --set values.global.defaultResources.requests.memory="100Mi" \
-                            --set values.global.defaultResources.requests.cpu="50m" \
-                            >resources/istio/base/istio-demo-profile.yaml
+    istioctl manifest generate -f resources/istio/base/istio-default.yaml > resources/istio/base/istio-demo-profile.yaml
     # apply new crds to k8s
     kubectl apply -f resources/istio/base/istio-crds.yaml
 
@@ -40,6 +30,12 @@ sed -i '' '/ca_file: \/var\/run\/secrets\/kubernetes.io\/serviceaccount\/ca.crt/
 kubectl apply -f istio-install-demo-profile.yaml
 kubectl -n istio-system rollout status  deployments istiod
 kubectl -n istio-system rollout status  deployments istio-ingressgateway
+# deploy default add-ons
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/prometheus.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/grafana.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/jaeger.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml
+# kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml #incase fails
 # enable basic auth for add-ons (same file used to enable for nginx basic auth)
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
@@ -61,34 +57,36 @@ kubectl label namespace prod \
 
 # enable kiali by seting scret
 
-KIALI_USERNAME=$(echo -n sysops | base64)
-KIALI_PASSPHRASE=$(echo -n $BASIC_AUTH_PWD | base64)
-# create secret
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: kiali
-  namespace: istio-system
-  labels:
-    app: kiali
-type: Opaque
-data:
-  username: $KIALI_USERNAME
-  passphrase: $KIALI_PASSPHRASE
-EOF
+# KIALI_USERNAME=$(echo -n sysops | base64)
+# KIALI_PASSPHRASE=$(echo -n $BASIC_AUTH_PWD | base64)
+# # create secret
+# cat <<EOF | kubectl apply -f -
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: kiali
+#   namespace: istio-system
+#   labels:
+#     app: kiali
+# type: Opaque
+# data:
+#   username: $KIALI_USERNAME
+#   passphrase: $KIALI_PASSPHRASE
+# EOF
 
 # create ingress for add-ons
-cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFANA_ADDR@$MESH_GRAFANA_ADDR@g; \
-                                                                   s@MESH_PROM_ADDR@$MESH_PROM_ADDR@g; \
-                                                                   s@MESH_KIALI_ADDR@$MESH_KIALI_ADDR@g; \
-                                                                   s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
-                                                                   tee istio-add-ons-using-nginx-ingress.temp.yaml
-kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
+# cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFANA_ADDR@$MESH_GRAFANA_ADDR@g; \
+#                                                                    s@MESH_PROM_ADDR@$MESH_PROM_ADDR@g; \
+#                                                                    s@MESH_KIALI_ADDR@$MESH_KIALI_ADDR@g; \
+#                                                                    s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
+#                                                                    tee istio-add-ons-using-nginx-ingress.temp.yaml
+# kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
 
 if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
-# add version details to the file
-echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
-# ammend with version details
-echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
+    # add version details to the file
+    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
+    # ammend with version details
+    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
 fi
+# import grafana dashboards
+sh istio-grafana-dashboard.sh

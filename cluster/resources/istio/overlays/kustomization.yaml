@@ -4,4 +4,3 @@ bases:
 - ../base
 patchesStrategicMerge:
 - istio-aws-ssl-config.yaml
-- istio-istiod-deployment.yaml

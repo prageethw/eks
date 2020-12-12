@@ -1,0 +1,58 @@
+apiVersion: kiali.io/v1alpha1
+kind: Kiali
+metadata:
+  name: kiali
+  annotations:
+    ansible.operator-sdk/verbosity: "1"
+spec:
+ auth:
+   strategy: "anonymous"
+ deployment:
+   accessible_namespaces: 
+   - "**" # this means all
+   image_pull_policy: "IfNotPresent"
+   logger:
+     log_level: info
+     log_format: text
+     sampler_rate: "1"
+     time_field_format: "2006-01-02T15:04:05Z07:00"
+   resources: 
+      requests:
+        memory: "50Mi"
+        cpu: "25m"
+      limits:
+        memory: "100Mi"
+        cpu: "50m"
+   ingress_enabled: true
+   override_ingress_yaml:
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+          nginx.ingress.kubernetes.io/auth-secret: sysops
+          nginx.ingress.kubernetes.io/auth-type: basic
+      spec:
+        rules:
+        - host: mesh-kiali.cluster.prageethw.com
+          http:
+            paths:
+            - backend:
+                serviceName: kiali
+                servicePort: 20001
+              path: /
+ external_services:
+   grafana:
+     in_cluster_url: "http://grafana.metrics:80"
+     url: "https://grafana.cluster.prageethw.com"
+   istio:
+     component_status:
+       components:
+       - app_label: istio-egressgateway
+         is_core: true
+   prometheus:
+     url: "http://prometheus-server.metrics:80"
+   tracing:
+     in_cluster_url: "http://jaeger-query:16686" #note port number
+     namespace_selector: true
+     url: "https://mesh-jaeger.cluster.prageethw.com"
+
