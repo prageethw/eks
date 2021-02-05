@@ -9,7 +9,7 @@ GRAFANA_DATASOURCE="Prometheus"
 ISTIO_CONTROL_PLANE="$(istioctl version --remote | grep "control plane version")"
 VERSION=${ISTIO_CONTROL_PLANE#*:}
 # Import all Istio dashboards
-for DASHBOARD in 7639 11829 7636 7630 7642 7645; do
+for DASHBOARD in 7639 11829 7636 7630 7645; do
     REVISION="$(curl -s https://grafana.com/api/dashboards/${DASHBOARD}/revisions -s | jq ".items[] | select(.description | contains(\"${VERSION}\")) | .revision")"
     echo $REVISION
     curl -s https://grafana.com/api/dashboards/${DASHBOARD}/revisions/${REVISION}/download > dashboard-$DASHBOARD.json
