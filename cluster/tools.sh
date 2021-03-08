@@ -54,9 +54,9 @@ helm upgrade -i external-dns  bitnami/external-dns --namespace external-dns --ve
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
         --set rbac.create=true \
-        --set txtPrefix=kops- \
+        --set txtPrefix=eks- \
         --set policy=sync \
-        --set txtOwnerId=kops \
+        --set txtOwnerId=eks \
         --set sources="{ingress,istio-gateway}" \
         --set resources.limits.cpu="50m",resources.limits.memory="100Mi" \
         --set resources.requests.cpu="25m",resources.requests.memory="50Mi"
