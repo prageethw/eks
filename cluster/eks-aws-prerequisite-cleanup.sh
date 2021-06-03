@@ -34,7 +34,11 @@ aws iam detach-group-policy \
 aws iam detach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/IAMFullAccess \
     --group-name eks
- 
+
+aws iam detach-group-policy \
+    --policy-arn arn:aws:iam::aws:policy/AWSLambda_FullAccess \
+    --group-name kops
+    
 aws iam detach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess \
     --group-name eks
