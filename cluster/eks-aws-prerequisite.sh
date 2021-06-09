@@ -26,7 +26,7 @@ aws iam attach-group-policy \
 
 aws iam attach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AWSLambda_FullAccess \
-    --group-name kops
+    --group-name eks
     
 aws iam attach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess \
