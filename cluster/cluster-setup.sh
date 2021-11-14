@@ -189,7 +189,7 @@ export KUBECONFIG=keys/kubecfg-eks
 # ###########################################
 # enabeling multi nodegroup clusters
 ASG_NAMES=""
-for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | select(.AutoScalingGroupName | startswith(\"eksctl-$NAME-nodegroup\")).AutoScalingGroupName");
+for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[].Tags[] | select(.Value | startswith(\"$NAME\"))".ResourceId);
 do
     ASG_NAMES=$ASG_NAME,$ASG_NAMES
 done

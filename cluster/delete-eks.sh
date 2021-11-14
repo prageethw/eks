@@ -99,10 +99,6 @@ while [ $INIT_SLEEP -gt 0 ]; do
       : $((INIT_SLEEP--))
 done
 set -x
-aws ec2 delete-security-group \
-    --group-id $SG_NAME
-aws ec2 delete-security-group \
-    --group-id $ISTIO_SG_NAME
 eksctl delete cluster -n $NAME #--wait
 
 # delete redundent volumes
@@ -139,8 +135,26 @@ aws kms disable-key --key-id $KMS_CMK_ARN
 aws kms schedule-key-deletion --key-id $KMS_CMK_ARN --pending-window-in-days 7
 aws kms delete-alias --alias-name $KMS_CMK_ALIAS
 
-#### delete kubectl config and temp files ###
+set +x
+INIT_SLEEP=300
+echo "Waiting $INIT_SLEEP sec for NG resources deleted"
+echo "count down is ..."
+while [ $INIT_SLEEP -gt 0 ]; do
+      echo -ne "$INIT_SLEEP\033[0K\r" 
+      sleep 1
+      : $((INIT_SLEEP--))
+done
 
+# delete security groups
+aws ec2 delete-security-group \
+    --group-id $SG_NAME
+aws ec2 delete-security-group \
+    --group-id $ISTIO_SG_NAME
+# delete VPC
+aws ec2 delete-vpc --vpc-id $VPC_NAME
+
+#### delete kubectl config and temp files ###
+set -x
 rm -rf config
 rm -rf k8s*
 rm resources/*.temp.json
