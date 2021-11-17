@@ -144,7 +144,7 @@ while [ $INIT_SLEEP -gt 0 ]; do
       sleep 1
       : $((INIT_SLEEP--))
 done
-
+set -x
 # delete security groups
 aws ec2 delete-security-group \
     --group-id $SG_NAME
@@ -152,6 +152,11 @@ aws ec2 delete-security-group \
     --group-id $ISTIO_SG_NAME
 # delete VPC
 aws ec2 delete-vpc --vpc-id $VPC_NAME
+# delete dhcp options
+
+aws ec2 delete-dhcp-options --dhcp-options-id $(aws ec2 describe-dhcp-options    \
+                         --filters Name=owner-id,Values=$ACCNT_ID|jq -r .DhcpOptions[].DhcpOptionsId)
+
 
 #### delete kubectl config and temp files ###
 set -x
