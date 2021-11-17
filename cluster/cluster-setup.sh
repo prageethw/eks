@@ -71,7 +71,7 @@ export KUBECONFIG=keys/kubecfg-eks
     --without-nodegroup \
     --external-dns-access \
     --ssh-access --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s-eks.pub} \
-    --version=1.18
+    --version=1.19
     # --tags "k8s.io/cluster-autoscaler/enabled=true" \
 ### add additional node groups to resolve volume bidning issues.NOTE: tags not supported still for nodegroups
 

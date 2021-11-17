@@ -22,7 +22,7 @@ helm repo update
 kubectl create namespace aws-cluster-autoscaler
 helm upgrade -i aws-cluster-autoscaler autoscaler/cluster-autoscaler-chart \
     --namespace aws-cluster-autoscaler \
-    --version 1.0.3 \
+    --version 1.0.5 \
     --set autoDiscovery.clusterName=$NAME \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
