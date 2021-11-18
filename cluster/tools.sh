@@ -41,8 +41,8 @@ helm upgrade -i aws-cluster-autoscaler autoscaler/cluster-autoscaler-chart \
     --set extraArgs.expander="least-waste" \
     --set replicaCount=2 \
     --set podDisruptionBudget.maxUnavailable=1 \
-    --set resources.limits.cpu="100m",resources.limits.memory="400Mi" \
-    --set resources.requests.cpu="50m",resources.requests.memory="60Mi"
+    --set resources.limits.cpu="100m",resources.limits.memory="600Mi" \
+    --set resources.requests.cpu="50m",resources.requests.memory="400Mi"
 kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler-aws-cluster-autoscaler-chart
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
